@@ -197,7 +197,6 @@ public class VideoCallActivity extends AppCompatActivity {
         Log.d(TAG, "setupRemoteVideo uid=" + uid);
         remoteContainer.removeAllViews();
 
-        // ΚΑΙ εδώ CreateRendererView
         SurfaceView remoteView = RtcEngine.CreateRendererView(getBaseContext());
         remoteContainer.addView(remoteView);
 

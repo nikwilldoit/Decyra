@@ -26,7 +26,7 @@ public class VideoCallActivity extends AppCompatActivity {
     private RtcEngine agoraEngine;
 
     private static final String APP_ID = "0f9cc9d655b347fb852d60aef0fcf693";
-    private static final String TOKEN  = null;  //without certificate
+    private static final String TOKEN  = null;  // without certificate
 
     private String channelName;
 
@@ -136,10 +136,13 @@ public class VideoCallActivity extends AppCompatActivity {
         joinChannel();
     }
 
-
     private void setupLocalVideo() {
         Log.d(TAG, "setupLocalVideo");
-        SurfaceView localView = new SurfaceView(getBaseContext());
+        localContainer.removeAllViews();
+
+        // ΣΗΜΑΝΤΙΚΟ: χρησιμοποιούμε CreateRendererView
+        SurfaceView localView = RtcEngine.CreateRendererView(getBaseContext());
+        localView.setZOrderMediaOverlay(true);
         localContainer.addView(localView);
 
         agoraEngine.setupLocalVideo(
@@ -192,7 +195,10 @@ public class VideoCallActivity extends AppCompatActivity {
 
     private void setupRemoteVideo(int uid) {
         Log.d(TAG, "setupRemoteVideo uid=" + uid);
-        SurfaceView remoteView = new SurfaceView(getBaseContext());
+        remoteContainer.removeAllViews();
+
+        // ΚΑΙ εδώ CreateRendererView
+        SurfaceView remoteView = RtcEngine.CreateRendererView(getBaseContext());
         remoteContainer.addView(remoteView);
 
         agoraEngine.setupRemoteVideo(

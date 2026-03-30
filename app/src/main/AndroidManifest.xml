@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
     <uses-feature android:name= "android.hardware.camera.any"/>
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion ="28"/>
     <uses-permission android:name="android.permission.INTERNET" />
@@ -64,9 +65,9 @@
 
         <activity android:name=".ui.Chat.UsersActivity" />
         <activity android:name=".ui.Chat.ChatActivity"/>
-        <activity android:name=".ui.Chat.IncomingCallActivity"/>
         <activity android:name=".ui.Chat.VideoCallActivity" />
-        <activity android:name=".ui.Chat.OutgoingCallActivity" />
+
+        <activity android:name=".ui.Chat.CallsActivity" />
 
         <meta-data
             android:name="com.google.mlkit.vision.DEPENDENCIES"

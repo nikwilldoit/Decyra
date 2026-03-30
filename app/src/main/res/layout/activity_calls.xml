@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="#071B36">
+
+    <TextView
+        android:id="@+id/txtTitleCalls"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Video Calls"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:textColor="@android:color/white"
+        android:layout_marginBottom="16dp" />
+
+    <TextView
+        android:id="@+id/txtSelectUser"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Select user"
+        android:textColor="@android:color/white" />
+
+    <Spinner
+        android:id="@+id/spnUsers"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:background="@android:drawable/edit_text" />
+
+    <TextView
+        android:id="@+id/txtMeetingCodeLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Meeting code"
+        android:textColor="@android:color/white"
+        android:layout_marginTop="16dp" />
+
+    <EditText
+        android:id="@+id/edtMeetingCode"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter or share code"
+        android:inputType="text"
+        android:padding="10dp"
+        android:background="@android:drawable/edit_text"
+        android:textColor="@android:color/white"
+        android:textColorHint="#88FFFFFF" />
+
+    <Button
+        android:id="@+id/btnJoinCall"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Join / Start Call"
+        android:layout_marginTop="20dp" />
+
+</LinearLayout>

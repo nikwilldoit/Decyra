@@ -7,6 +7,7 @@ import android.view.View;
 import androidx.appcompat.widget.PopupMenu;
 
 import com.example.phasmatic.R;
+import com.example.phasmatic.ui.Chat.CallsActivity;
 import com.example.phasmatic.ui.Chat.UsersActivity;
 import com.example.phasmatic.ui.LoginActivity;
 import com.google.firebase.database.DatabaseReference;
@@ -58,6 +59,10 @@ public class ProfileMenuHelper {
                 go_to_chats();
                 return true;
             }
+            else if (id == R.id.menu_calls) {
+                go_to_calls();
+                return true;
+            }
             return false;
         });
 
@@ -71,6 +76,16 @@ public class ProfileMenuHelper {
         i.putExtra("userEmail", userEmail);
         i.putExtra("userPhone", userPhone);
         activity.startActivity(i);
+    }
+
+    private void go_to_calls() {
+        Intent i = new Intent(activity, CallsActivity.class);
+        i.putExtra("userId", userId);
+        i.putExtra("userFullName", userFullName);
+        i.putExtra("userEmail", userEmail);
+        i.putExtra("userPhone", userPhone);
+        activity.startActivity(i);
+        activity.finish();
     }
 
     private void logout() {

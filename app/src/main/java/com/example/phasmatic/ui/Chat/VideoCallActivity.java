@@ -25,8 +25,8 @@ public class VideoCallActivity extends AppCompatActivity {
 
     private RtcEngine agoraEngine;
 
-    private static final String APP_ID = "0f9cc9d655b347fb852d60aef0fcf693";
-    private static final String TOKEN  = null;  // without certificate
+    private static final String APP_ID = "4b5af779eaed490d907b1a00c7d9eac0";
+    private static final String TOKEN  = null;  //without certificate
 
     private String channelName;
 

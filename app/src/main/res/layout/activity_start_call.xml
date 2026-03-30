@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="24dp"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:background="#071B36">
+
+    <TextView
+        android:id="@+id/txtTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Start Video Call"
+        android:textSize="22sp"
+        android:textColor="@android:color/white"
+        android:textStyle="bold"
+        android:layout_marginBottom="24dp" />
+
+    <EditText
+        android:id="@+id/edtChannelName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter room/channel name"
+        android:inputType="text"
+        android:padding="12dp"
+        android:background="@android:drawable/edit_text"
+        android:textColor="@android:color/white"
+        android:textColorHint="#88FFFFFF" />
+
+    <Button
+        android:id="@+id/btnStartCall"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Start Call"
+        android:layout_marginTop="16dp" />
+
+</LinearLayout>

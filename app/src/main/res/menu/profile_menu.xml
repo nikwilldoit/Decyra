@@ -14,4 +14,8 @@
         android:id="@+id/menu_chat"
         android:title="Messages"
         android:icon="@drawable/ic_logout" />
+
+    <item
+        android:id="@+id/menu_calls"
+        android:title="Calls" />
 </menu>

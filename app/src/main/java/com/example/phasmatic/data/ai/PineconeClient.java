@@ -29,16 +29,17 @@ public class PineconeClient {
         void onError(String error);
     }
 
-    public void upsert(float[] vector, String id, JSONObject metadata) {
-
+    public void upsertNamespace(float[] vector, String id, JSONObject metadata, String namespace) {
         try {
+             //master index
             String url = "https://decyra-better-index-trb4i0f.svc.aped-4627-b74a.pinecone.io/vectors/upsert";
 
-            Log.d("PINECONE", "===== UPSERT START =====");
-            Log.d("PINECONE", "URL: " + url);
-            Log.d("PINECONE", "ID: " + id);
-            Log.d("PINECONE", "Vector length: " + vector.length);
-            Log.d("PINECONE", "Metadata: " + metadata.toString());
+            //erasmus index
+            //String url = "https://decyra-erasmus-index-trb4i0f.svc.aped-4627-b74a.pinecone.io/vectors/upsert";
+
+            //work index
+            //String url = "https://decyra-work-index-trb4i0f.svc.aped-4627-b74a.pinecone.io/vectors/upsert";
+
 
             JSONObject body = new JSONObject();
             JSONArray vectors = new JSONArray();
@@ -50,19 +51,16 @@ public class PineconeClient {
 
             vectors.put(vec);
             body.put("vectors", vectors);
-
-            Log.d("PINECONE", "Request body: " + body.toString());
+            body.put("namespace", namespace); //orizoyme neo namespace gia univeristies
 
             Request request = new Request.Builder()
                     .url(url)
                     .addHeader("Api-Key", API_KEY)
                     .addHeader("Content-Type", "application/json")
-                    .post(RequestBody.create(body.toString(),
-                            MediaType.get("application/json")))
+                    .post(RequestBody.create(body.toString(), MediaType.get("application/json")))
                     .build();
 
             client.newCall(request).enqueue(new Callback() {
-
                 @Override
                 public void onFailure(Call call, IOException e) {
                     Log.e("PINECONE", "REQUEST FAILED: " + e.getMessage());
@@ -70,18 +68,10 @@ public class PineconeClient {
 
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
-
-                    String resBody = response.body() != null
-                            ? response.body().string()
-                            : "EMPTY";
-
-                    Log.d("PINECONE", "RESPONSE CODE: " + response.code());
-                    Log.d("PINECONE", "RESPONSE BODY: " + resBody);
-
-                    if (!response.isSuccessful()) {
-                        Log.e("PINECONE", "ERROR RESPONSE!");
-                    } else {
+                    if (response.isSuccessful()) {
                         Log.d("PINECONE", "UPSERT SUCCESS!");
+                    } else {
+                        Log.e("PINECONE", "ERROR RESPONSE: " + response.code());
                     }
                 }
             });
@@ -91,6 +81,70 @@ public class PineconeClient {
             e.printStackTrace();
         }
     }
+
+
+//    public void upsertMaster(float[] vector, String id, JSONObject metadata) {
+//
+//        try {
+//            String url = "https://decyra-better-index-trb4i0f.svc.aped-4627-b74a.pinecone.io/vectors/upsert";
+//
+//            Log.d("PINECONE", "===== UPSERT START =====");
+//            Log.d("PINECONE", "URL: " + url);
+//            Log.d("PINECONE", "ID: " + id);
+//            Log.d("PINECONE", "Vector length: " + vector.length);
+//            Log.d("PINECONE", "Metadata: " + metadata.toString());
+//
+//            JSONObject body = new JSONObject();
+//            JSONArray vectors = new JSONArray();
+//
+//            JSONObject vec = new JSONObject();
+//            vec.put("id", id);
+//            vec.put("values", new JSONArray(vector));
+//            vec.put("metadata", metadata);
+//
+//            vectors.put(vec);
+//            body.put("vectors", vectors);
+//
+//            Log.d("PINECONE", "Request body: " + body.toString());
+//
+//            Request request = new Request.Builder()
+//                    .url(url)
+//                    .addHeader("Api-Key", API_KEY)
+//                    .addHeader("Content-Type", "application/json")
+//                    .post(RequestBody.create(body.toString(),
+//                            MediaType.get("application/json")))
+//                    .build();
+//
+//            client.newCall(request).enqueue(new Callback() {
+//
+//                @Override
+//                public void onFailure(Call call, IOException e) {
+//                    Log.e("PINECONE", "REQUEST FAILED: " + e.getMessage());
+//                }
+//
+//                @Override
+//                public void onResponse(Call call, Response response) throws IOException {
+//
+//                    String resBody = response.body() != null
+//                            ? response.body().string()
+//                            : "EMPTY";
+//
+//                    Log.d("PINECONE", "RESPONSE CODE: " + response.code());
+//                    Log.d("PINECONE", "RESPONSE BODY: " + resBody);
+//
+//                    if (!response.isSuccessful()) {
+//                        Log.e("PINECONE", "ERROR RESPONSE!");
+//                    } else {
+//                        Log.d("PINECONE", "UPSERT SUCCESS!");
+//                    }
+//                }
+//            });
+//
+//        } catch (Exception e) {
+//            Log.e("PINECONE", "EXCEPTION: " + e.getMessage());
+//            e.printStackTrace();
+//        }
+//    }
 
     public void query(float[] vector, PineconeCallback callback) {
 

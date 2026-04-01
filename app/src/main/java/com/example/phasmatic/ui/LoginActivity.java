@@ -129,7 +129,9 @@ public class LoginActivity extends AppCompatActivity {
             loginWithFirebase(email, password);
 
             PineconeIndexer indexer = new PineconeIndexer(this);
-            indexer.indexPrograms();
+            //indexer.indexPrograms();
+            //indexer.indexUniversities("https://decyra-erasmus-index-trb4i0f.svc.aped-4627-b74a.pinecone.io/vectors/upsert");
+            indexer.indexUniversities();
 
         });
 

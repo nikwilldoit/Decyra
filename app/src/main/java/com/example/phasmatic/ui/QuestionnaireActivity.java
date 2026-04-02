@@ -296,10 +296,10 @@ public class QuestionnaireActivity extends AppCompatActivity {
                         Long salary = null;
                         for (DataSnapshot child : snapshot.getChildren()) {
                             Long fieldId   = child.child("field_id").getValue(Long.class);
-                            Long countryId = child.child("country_id").getValue(Long.class);
-                            Log.d("CAREER_DEBUG", "row: fieldId=" + fieldId + " countryId=" + countryId);
+                            String country = child.child("country").getValue(String.class);
+                            Log.d("CAREER_DEBUG", "row: fieldId=" + fieldId + " country=" + country);
 
-                            if (countryId != null && countryId == 3L) {
+                            if (country != null && !country.isEmpty()) {
                                 salary = child.child("avg_salary_no_master").getValue(Long.class);
                                 break;
                             }

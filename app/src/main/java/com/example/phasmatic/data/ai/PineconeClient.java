@@ -19,182 +19,199 @@ import okhttp3.Response;
 
 public class PineconeClient {
 
-    private static final String BASE_URL = "https://decyra-better-index-trb4i0f.svc.aped-4627-b74a.pinecone.io/query";
-    private static final String API_KEY = "pcsk_3sKnDQ_U2HLqcoc4Dstfk3RPndnDyKL36ggcwhiaQJrCe6R9qZ2AUzufab9tZGDM5SXSTX";
+    private static final String API_KEY = "pcsk_2BxKaT_SFgCvuA3PLtbGaPxXYVA7AVXAXFGffPro5DxBdfVzzYaPo5FcUb4snuHHd338Yh";
 
-    private final OkHttpClient client = new OkHttpClient();
+    private static final String ERASMUS_INDEX_BASE_URL =
+            "https://decyra-erasmus-index-trb4i0f.svc.aped-4627-b74a.pinecone.io";
+
+    private static final String WORK_INDEX_BASE_URL =
+            "https://decyra-work-index-trb4i0f.svc.aped-4627-b74a.pinecone.io";
+
+    private final OkHttpClient httpClient;
+
+    public PineconeClient() {
+        httpClient = new OkHttpClient();
+    }
 
     public interface PineconeCallback {
         void onSuccess(String context);
-        void onError(String error);
+        void onError(String errorMessage);
     }
 
-    public void upsertNamespace(float[] vector, String id, JSONObject metadata, String namespace) {
+    private String resolveBaseUrl(String indexName) {
+        if (indexName.equals("Education")) {
+            return ERASMUS_INDEX_BASE_URL;
+        }
+
+        if (indexName.equals("career")) {
+            return WORK_INDEX_BASE_URL;
+        }
+
+        throw new IllegalArgumentException("Invalid index name provided");
+    }
+
+    public void upsertVector(
+            float[] embeddingVector,
+            String vectorId,
+            JSONObject metadataObject,
+            String namespace,
+            String indexName
+    ) {
+
         try {
-             //master index
-            String url = "https://decyra-better-index-trb4i0f.svc.aped-4627-b74a.pinecone.io/vectors/upsert";
 
-            //erasmus index
-            //String url = "https://decyra-erasmus-index-trb4i0f.svc.aped-4627-b74a.pinecone.io/vectors/upsert";
+            String baseUrl = resolveBaseUrl(indexName);
+            String url = baseUrl + "/vectors/upsert";
 
-            //work index
-            //String url = "https://decyra-work-index-trb4i0f.svc.aped-4627-b74a.pinecone.io/vectors/upsert";
+            JSONObject requestBodyJson = new JSONObject();
+            JSONArray vectorsArray = new JSONArray();
 
+            JSONObject vectorObject = new JSONObject();
+            vectorObject.put("id", vectorId + "_" + namespace);
+            vectorObject.put("values", new JSONArray(embeddingVector));
+            vectorObject.put("metadata", metadataObject);
 
-            JSONObject body = new JSONObject();
-            JSONArray vectors = new JSONArray();
+            vectorsArray.put(vectorObject);
 
-            JSONObject vec = new JSONObject();
-            vec.put("id", id);
-            vec.put("values", new JSONArray(vector));
-            vec.put("metadata", metadata);
-
-            vectors.put(vec);
-            body.put("vectors", vectors);
-            body.put("namespace", namespace); //orizoyme neo namespace gia univeristies
+            requestBodyJson.put("vectors", vectorsArray);
+            requestBodyJson.put("namespace", namespace);
 
             Request request = new Request.Builder()
                     .url(url)
                     .addHeader("Api-Key", API_KEY)
                     .addHeader("Content-Type", "application/json")
-                    .post(RequestBody.create(body.toString(), MediaType.get("application/json")))
+                    .post(RequestBody.create(
+                            requestBodyJson.toString(),
+                            MediaType.get("application/json")
+                    ))
                     .build();
 
-            client.newCall(request).enqueue(new Callback() {
+            httpClient.newCall(request).enqueue(new Callback() {
+
                 @Override
-                public void onFailure(Call call, IOException e) {
-                    Log.e("PINECONE", "REQUEST FAILED: " + e.getMessage());
+                public void onFailure(Call call, IOException exception) {
+                    Log.e("PINECONE", "Upsert failed: " + exception.getMessage());
                 }
 
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
+
+                    String responseBody = "";
+
+                    if (response.body() != null) {
+                        responseBody = response.body().string();
+                    }
+
                     if (response.isSuccessful()) {
-                        Log.d("PINECONE", "UPSERT SUCCESS!");
+                        Log.d("PINECONE", "Upsert successful in namespace: " + namespace);
                     } else {
-                        Log.e("PINECONE", "ERROR RESPONSE: " + response.code());
+                        Log.e("PINECONE", "Upsert error: " + responseBody);
                     }
                 }
             });
 
-        } catch (Exception e) {
-            Log.e("PINECONE", "EXCEPTION: " + e.getMessage());
-            e.printStackTrace();
+        } catch (Exception exception) {
+            Log.e("PINECONE", "Exception during upsert", exception);
         }
     }
 
-
-//    public void upsertMaster(float[] vector, String id, JSONObject metadata) {
-//
-//        try {
-//            String url = "https://decyra-better-index-trb4i0f.svc.aped-4627-b74a.pinecone.io/vectors/upsert";
-//
-//            Log.d("PINECONE", "===== UPSERT START =====");
-//            Log.d("PINECONE", "URL: " + url);
-//            Log.d("PINECONE", "ID: " + id);
-//            Log.d("PINECONE", "Vector length: " + vector.length);
-//            Log.d("PINECONE", "Metadata: " + metadata.toString());
-//
-//            JSONObject body = new JSONObject();
-//            JSONArray vectors = new JSONArray();
-//
-//            JSONObject vec = new JSONObject();
-//            vec.put("id", id);
-//            vec.put("values", new JSONArray(vector));
-//            vec.put("metadata", metadata);
-//
-//            vectors.put(vec);
-//            body.put("vectors", vectors);
-//
-//            Log.d("PINECONE", "Request body: " + body.toString());
-//
-//            Request request = new Request.Builder()
-//                    .url(url)
-//                    .addHeader("Api-Key", API_KEY)
-//                    .addHeader("Content-Type", "application/json")
-//                    .post(RequestBody.create(body.toString(),
-//                            MediaType.get("application/json")))
-//                    .build();
-//
-//            client.newCall(request).enqueue(new Callback() {
-//
-//                @Override
-//                public void onFailure(Call call, IOException e) {
-//                    Log.e("PINECONE", "REQUEST FAILED: " + e.getMessage());
-//                }
-//
-//                @Override
-//                public void onResponse(Call call, Response response) throws IOException {
-//
-//                    String resBody = response.body() != null
-//                            ? response.body().string()
-//                            : "EMPTY";
-//
-//                    Log.d("PINECONE", "RESPONSE CODE: " + response.code());
-//                    Log.d("PINECONE", "RESPONSE BODY: " + resBody);
-//
-//                    if (!response.isSuccessful()) {
-//                        Log.e("PINECONE", "ERROR RESPONSE!");
-//                    } else {
-//                        Log.d("PINECONE", "UPSERT SUCCESS!");
-//                    }
-//                }
-//            });
-//
-//        } catch (Exception e) {
-//            Log.e("PINECONE", "EXCEPTION: " + e.getMessage());
-//            e.printStackTrace();
-//        }
-//    }
-
-    public void query(float[] vector, PineconeCallback callback) {
+    public void queryIndex(
+            float[] embeddingVector,
+            String namespace,
+            String indexName,
+            PineconeCallback callback
+    ) {
 
         try {
-            JSONObject body = new JSONObject();
-            body.put("vector", new JSONArray(vector));
-            body.put("topK", 5);
-            body.put("includeMetadata", true);
+
+            String baseUrl = resolveBaseUrl(indexName);
+            String url = baseUrl + "/query";
+
+            JSONObject requestBodyJson = new JSONObject();
+            requestBodyJson.put("vector", new JSONArray(embeddingVector));
+            requestBodyJson.put("topK", 5);
+            requestBodyJson.put("includeMetadata", true);
+            requestBodyJson.put("namespace", namespace);
 
             Request request = new Request.Builder()
-                    .url(BASE_URL)
+                    .url(url)
                     .addHeader("Api-Key", API_KEY)
-                    .post(RequestBody.create(body.toString(),
-                            MediaType.get("application/json")))
+                    .addHeader("Content-Type", "application/json")
+                    .post(RequestBody.create(
+                            requestBodyJson.toString(),
+                            MediaType.get("application/json")
+                    ))
                     .build();
 
-            client.newCall(request).enqueue(new Callback() {
+            httpClient.newCall(request).enqueue(new Callback() {
 
                 @Override
-                public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                    callback.onError(e.getMessage());
+                public void onFailure(@NonNull Call call, @NonNull IOException exception) {
+                    callback.onError(exception.getMessage());
                 }
 
                 @Override
                 public void onResponse(@NonNull Call call, @NonNull Response response) {
+
                     try {
-                        String res = response.body().string();
 
-                        JSONObject json = new JSONObject(res);
-                        JSONArray matches = json.getJSONArray("matches");
-
-                        StringBuilder context = new StringBuilder();
-
-                        for (int i = 0; i < matches.length(); i++) {
-                            JSONObject meta = matches.getJSONObject(i)
-                                    .getJSONObject("metadata");
-
-                            context.append("Program: ").append(meta.optString("title")).append("\n").append("Country: ").append(meta.optString("country")).append("\n").append("Field: ").append(meta.optString("field")).append("\n").append("Description: ").append(meta.optString("description")).append("\n\n");
+                        if (!response.isSuccessful()) {
+                            callback.onError("HTTP error code: " + response.code());
+                            return;
                         }
 
-                        callback.onSuccess(context.toString());
+                        String responseBody = response.body().string();
+                        JSONObject responseJson = new JSONObject(responseBody);
 
-                    } catch (Exception e) {
-                        callback.onError(e.getMessage());
+                        JSONArray matchesArray = responseJson.optJSONArray("matches");
+
+                        if (matchesArray == null) {
+                            callback.onError("Matches array not found");
+                            return;
+                        }
+
+                        StringBuilder contextBuilder = new StringBuilder();
+
+                        for (int i = 0; i < matchesArray.length(); i++) {
+
+                            JSONObject matchObject = matchesArray.getJSONObject(i);
+                            JSONObject metadataObject = matchObject.optJSONObject("metadata");
+
+                            if (metadataObject != null) {
+                                contextBuilder.append("Name: ").append(metadataObject.optString("name")).append("\n");
+
+                                if (metadataObject.has("description")) {
+                                    contextBuilder.append("Description: ")
+                                            .append(metadataObject.optString("description"))
+                                            .append("\n");
+                                }
+
+                                if (metadataObject.has("salary_with_master")) {
+                                    contextBuilder.append("Salary with master: ")
+                                            .append(metadataObject.optString("salary_with_master"))
+                                            .append("\n");
+                                }
+
+                                if (metadataObject.has("salary_without_master")) {
+                                    contextBuilder.append("Salary without master: ")
+                                            .append(metadataObject.optString("salary_without_master"))
+                                            .append("\n");
+                                }
+
+                                contextBuilder.append("\n");
+                            }
+                        }
+
+                        callback.onSuccess(contextBuilder.toString());
+
+                    } catch (Exception exception) {
+                        callback.onError(exception.getMessage());
                     }
                 }
             });
 
-        } catch (Exception e) {
-            callback.onError(e.getMessage());
+        } catch (Exception exception) {
+            callback.onError(exception.getMessage());
         }
     }
 }

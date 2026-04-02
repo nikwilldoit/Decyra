@@ -108,44 +108,88 @@ public class OpenAIChatClient {
 
 
     public void sendMessage(String userMessage, ChatCallback callback) {
-        Log.d("OpenAI", "sendMessage: " + userMessage);
 
         firebaseDb.getReference("api_keys/0/api_key")
                 .addListenerForSingleValueEvent(new ValueEventListener() {
+
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
+
                         String apiKey = snapshot.getValue(String.class);
-                        Log.d("OpenAI", "apiKey from DB: " + apiKey);
 
                         if (apiKey == null || apiKey.isEmpty()) {
                             callback.onError("API key not found");
                             return;
                         }
+
                         getEmbedding(userMessage, new EmbeddingCallback() {
 
                             @Override
-                            public void onSuccess(float[] embedding) {
+                            public void onSuccess(float[] embeddingVector) {
 
-                                PineconeClient pinecone = new PineconeClient();
+                                PineconeClient pineconeClient = new PineconeClient();
 
-                                pinecone.query(embedding, new PineconeClient.PineconeCallback() {
+                                StringBuilder finalContext = new StringBuilder();
 
-                                    @Override
-                                    public void onSuccess(String context) {
+                                int totalQueries = 6;
+                                int[] completedQueries = {0};
 
-                                        String enrichedPrompt =
-                                                "Use ONLY the following context:\n\n"
-                                                        + context +
-                                                        "\n\nUser question: " + userMessage;
+                                PineconeClient.PineconeCallback collector =
+                                        new PineconeClient.PineconeCallback() {
 
-                                        callOpenAI(apiKey, enrichedPrompt, callback);
-                                    }
+                                            @Override
+                                            public void onSuccess(String context) {
 
-                                    @Override
-                                    public void onError(String error) {
-                                        callback.onError("Pinecone error: " + error);
-                                    }
-                                });
+                                                synchronized (finalContext) {
+                                                    finalContext.append(context).append("\n");
+                                                }
+
+                                                synchronized (completedQueries) {
+                                                    completedQueries[0]++;
+
+                                                    if (completedQueries[0] == totalQueries) {
+
+                                                        String enrichedPrompt =
+                                                                "Use ONLY the following context:\n\n"
+                                                                        + finalContext.toString()
+                                                                        + "\nUser question: "
+                                                                        + userMessage;
+
+                                                        callOpenAI(apiKey, enrichedPrompt, callback);
+                                                    }
+                                                }
+                                            }
+
+                                            @Override
+                                            public void onError(String error) {
+                                                Log.e("RAG", "Query error: " + error);
+
+                                                synchronized (completedQueries) {
+                                                    completedQueries[0]++;
+
+                                                    if (completedQueries[0] == totalQueries) {
+
+                                                        String enrichedPrompt =
+                                                                "Use ONLY the following context:\n\n"
+                                                                        + finalContext.toString()
+                                                                        + "\nUser question: "
+                                                                        + userMessage;
+
+                                                        callOpenAI(apiKey, enrichedPrompt, callback);
+                                                    }
+                                                }
+                                            }
+                                        };
+
+                                //EDUCATION INDEX
+                                pineconeClient.queryIndex(embeddingVector, "master", "Education", collector);
+                                pineconeClient.queryIndex(embeddingVector, "universities", "Education", collector);
+                                pineconeClient.queryIndex(embeddingVector, "erasmus", "Education", collector);
+
+                                //CAREER INDEX
+                                pineconeClient.queryIndex(embeddingVector, "career", "career", collector);
+                                pineconeClient.queryIndex(embeddingVector, "countries", "career", collector);
+                                pineconeClient.queryIndex(embeddingVector, "it_fields", "career", collector);
                             }
 
                             @Override
@@ -157,8 +201,7 @@ public class OpenAIChatClient {
 
                     @Override
                     public void onCancelled(@NonNull DatabaseError error) {
-                        Log.e("OpenAI", "Firebase error: " + error.getMessage());
-                        callback.onError("Firebase error: " + error.getMessage());
+                        callback.onError(error.getMessage());
                     }
                 });
     }

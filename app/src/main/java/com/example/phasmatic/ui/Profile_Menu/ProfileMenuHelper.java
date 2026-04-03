@@ -10,7 +10,7 @@ import com.example.phasmatic.R;
 import com.example.phasmatic.ui.conference.GeneralConferenceActivity;
 import com.example.phasmatic.ui.Chat.UsersActivity;
 import com.example.phasmatic.ui.LoginActivity;
-import com.example.phasmatic.ui.notes.NotesActivity;
+import com.example.phasmatic.ui.notes.AddNoteActivity;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -63,7 +63,8 @@ public class ProfileMenuHelper {
             else if (id == R.id.menu_conference) {
                 go_to_conference();
                 return true;
-            }else if (id == R.id.menu_notes) {
+            }
+            else if (id == R.id.menu_notes) {
                 go_to_notes();
                 return true;
             }
@@ -75,12 +76,13 @@ public class ProfileMenuHelper {
     }
 
     private void go_to_notes() {
-        Intent i = new Intent(activity, NotesActivity.class);
+        Intent i = new Intent(activity, AddNoteActivity.class);
         i.putExtra("userId", userId);
         i.putExtra("userFullName", userFullName);
         i.putExtra("userEmail", userEmail);
         i.putExtra("userPhone", userPhone);
         activity.startActivity(i);
+        activity.finish();
     }
 
     private void openAccountActivity() {

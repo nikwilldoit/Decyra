@@ -65,7 +65,7 @@
         <activity android:name=".ui.Forum.NewReviewActivity" />
 
         <activity android:name=".ui.Forum.ReviewDetailActivity" />
-        <activity android:name=".ui.Profile_Menu.ForgetActivity" />
+        <activity android:name=".ui.ForgetActivity" />
 
         <activity android:name=".ui.Profile_Menu.PublicProfileActivity" />
 

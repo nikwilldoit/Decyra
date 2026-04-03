@@ -1,5 +1,6 @@
 package com.example.phasmatic.ui.conference;
 
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -61,6 +62,11 @@ public class ConferenceAdapter extends RecyclerView.Adapter<ConferenceAdapter.VH
         } else {
             holder.itemView.setAlpha(1f);
         }
+        if (user.isGray()) {
+            holder.txtName.setTextColor(Color.GRAY);
+        } else {
+            holder.txtName.setTextColor(Color.BLACK);
+        }
 
         holder.itemView.setOnClickListener(v -> {
             String uid = user.getId();
@@ -86,10 +92,23 @@ public class ConferenceAdapter extends RecyclerView.Adapter<ConferenceAdapter.VH
             holder.imgUser.setImageResource(R.drawable.baseline_face_24);
         }
     }
+    public void clearGrayState() {
+        for (User user : list) {
+            user.setGray(false);
+        }
+    }
 
     @Override
     public int getItemCount() {
         return list.size();
+    }
+    public void markConfirmedUsers(List<String> confirmedIds) {
+        for (User user : list) {
+            if (confirmedIds.contains(user.getId())) {
+                user.setGray(false);
+            }
+        }
+        notifyDataSetChanged();
     }
 
     static class VH extends RecyclerView.ViewHolder {

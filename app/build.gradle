@@ -113,4 +113,8 @@ dependencies {
     //zego cloud
     implementation 'com.github.ZEGOCLOUD:zego_uikit_prebuilt_video_conference_android:latest.release'
 
+
+    //material calendar
+    //implementation 'com.applandeo:material-calendar-view:1.9.2'
+
 }

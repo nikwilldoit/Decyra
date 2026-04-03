@@ -35,6 +35,16 @@ public class User {
         this.profileImageUrl = profileImageUrl;
     }
 
+    private boolean gray = false;
+
+    public boolean isGray() {
+        return gray;
+    }
+
+    public void setGray(boolean gray) {
+        this.gray = gray;
+    }
+
     public String getProfileImageUrl() {
         return profileImageUrl;
     }

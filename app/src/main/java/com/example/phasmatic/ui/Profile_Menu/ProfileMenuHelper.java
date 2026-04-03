@@ -7,6 +7,7 @@ import android.view.View;
 import androidx.appcompat.widget.PopupMenu;
 
 import com.example.phasmatic.R;
+import com.example.phasmatic.ui.CalendarActivity;
 import com.example.phasmatic.ui.conference.GeneralConferenceActivity;
 import com.example.phasmatic.ui.Chat.UsersActivity;
 import com.example.phasmatic.ui.LoginActivity;
@@ -66,12 +67,24 @@ public class ProfileMenuHelper {
             }else if (id == R.id.menu_notes) {
                 go_to_notes();
                 return true;
+            }else if (id == R.id.menu_calendar) {
+                go_to_calendar();
+                return true;
             }
 
             return false;
         });
 
         popup.show();
+    }
+
+    private void go_to_calendar() {
+        Intent i = new Intent(activity, CalendarActivity.class);
+        i.putExtra("userId", userId);
+        i.putExtra("userFullName", userFullName);
+        i.putExtra("userEmail", userEmail);
+        i.putExtra("userPhone", userPhone);
+        activity.startActivity(i);
     }
 
     private void go_to_notes() {

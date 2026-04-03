@@ -2,6 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mainConference"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -63,21 +64,36 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- RecyclerView -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerUsers"
+    <EditText
+        android:id="@+id/edtSearchUser"
         android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_height="48dp"
+        android:hint="Search user..."
+        android:padding="12dp"
         android:background="@drawable/video_frame_bg"
-        android:padding="8dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="16dp"
+        android:layout_margin="12dp"
         app:layout_constraintTop_toBottomOf="@id/txtSubtitleConference"
-        app:layout_constraintBottom_toTopOf="@id/btnConfirmConference"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <!-- RecyclerView -->
 
     <!-- Confirm Button -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerUsers"
+        android:layout_width="409dp"
+        android:layout_height="383dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/video_frame_bg"
+        android:padding="8dp"
+        app:layout_constraintBottom_toTopOf="@id/btnConfirmConference"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/txtSubtitleConference"
+        app:layout_constraintVertical_bias="0.955" />
+
     <Button
         android:id="@+id/btnConfirmConference"
         android:layout_width="0dp"

@@ -68,6 +68,7 @@ public class QuestionnaireActivity extends AppCompatActivity {
     private DatabaseReference expectationsRef;
     private DatabaseReference questionsRef;
     private DatabaseReference usersRef;
+    private DatabaseReference usersInfoRef;
 
     private String careerQuestion2Template;
     private InternetConnection inter = new InternetConnection();
@@ -114,6 +115,8 @@ public class QuestionnaireActivity extends AppCompatActivity {
                 "https://mega-5a5b4-default-rtdb.europe-west1.firebasedatabase.app"
         );
         usersRef = firebaseDb.getReference("users");
+
+        usersInfoRef = firebaseDb.getReference("user_info");
 
         itFieldsRef = firebaseDb.getReference("it_fields");
         careerRef = firebaseDb.getReference("career");
@@ -512,63 +515,115 @@ public class QuestionnaireActivity extends AppCompatActivity {
 
         sb.append("Με βάση τα παρακάτω στοιχεία θέλω να μου προτείνεις τις πιο κατάλληλες επιλογές:\n\n");
 
-        for (int i = 0; i < questions.size(); i++) {
-            if (!answers.get(i).isEmpty()) {
-                sb.append("- ")
-                        //.append(questions.get(i))
-                        //.append(" Απάντηση: ")
-                        .append(answers.get(i))
-                        .append("\n");
+        usersInfoRef.child("gpa").get().addOnCompleteListener(task -> {
+            String gpa = "Unknown";
+            if (task.isSuccessful() && task.getResult() != null) {
+                gpa = String.valueOf(task.getResult().getValue());
+            }
+
+            StringBuilder formatted = new StringBuilder();
+            for (int i = 0; i < questions.size(); i++) {
+                if (!answers.get(i).isEmpty()) {
+                    String f = formatAnswer(modeType, i, answers.get(i));
+                    if (!f.isEmpty()) {
+                        formatted.append(f).append('\n');
+                    }
+                }
+            }
+
+            formatted.append("GPA: ").append(gpa).append("\n");
+            sb.append("- ").append(formatted).append("\n");
+
+            if ("erasmus".equals(modeType)) {
+                sb.append("\nΔώσε 10 προγράμματα Erasmus που ταιριάζουν στο προφίλ. ");
+                sb.append("Μόνο όνομα πανεπιστημίου, χώρα και 1 σύντομη φράση. Χωρίς ανάλυση.");
+            } else if ("master".equals(modeType)) {
+                sb.append("\nΔώσε 10 προγράμματα μεταπτυχιακών που ταιριάζουν στο προφίλ. ");
+                sb.append("Μόνο όνομα προγράμματος, πανεπιστήμιο, χώρα και 1 σύντομη φράση. Χωρίς ανάλυση.");
+            } else if ("career".equals(modeType)) {
+                sb.append("\nΔώσε 5 σύντομες προτάσεις καριέρας που ταιριάζουν στο προφίλ. ");
+                sb.append("Μόνο τίτλο και 1 γραμμή εξήγησης.");
+            }
+
+            String expectationsText = sb.toString().trim();
+
+            String id = expectationsRef.push().getKey();
+            if (id == null) {
+                Toast.makeText(this, "Failed to create expectation id", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            UserExpectation expectation = new UserExpectation(
+                    id,
+                    userId,
+                    modeType,
+                    expectationsText
+            );
+
+            expectationsRef.child(id)
+                    .setValue(expectation)
+                    .addOnSuccessListener(unused -> {
+                        Intent i;
+                        if ("erasmus".equals(modeType)) {
+                            i = new Intent(QuestionnaireActivity.this, ErasmusChatActivity.class);
+                        }
+                        else if ("master".equals(modeType)) {
+                            i = new Intent(QuestionnaireActivity.this, MasterChatActivity.class);
+                        }
+                        else {
+                            i = new Intent(QuestionnaireActivity.this, CareerChatActivity.class);
+                        }
+                        i.putExtra("userId", userId);
+                        i.putExtra("userFullName", userFullName);
+                        i.putExtra("userEmail", userEmail);
+                        i.putExtra("userPhone", userPhone);
+                        i.putExtra("userExpectations", expectationsText);
+                        startActivity(i);
+                        finish();
+                    })
+                    .addOnFailureListener(e ->
+                            Toast.makeText(this, "Failed to save: " + e.getMessage(), Toast.LENGTH_SHORT).show()
+                    );
+        });
+    }
+
+    private String formatAnswer(String mode, int index, String answer) {
+
+        if ("erasmus".equals(mode)) {
+            switch (index) {
+                case 0:
+                    return "Preferred Location: " + answer;
+                case 1:
+                    return "Cost Sensitivity: " + answer;
+                case 2:
+                    return "City Type: " + answer;
+                case 3:
+                    return "Experience Preference: " + answer;
+                case 4:
+                    return "Language Preference: " + answer;
+                default:
+                    return "";
             }
         }
 
-        if ("erasmus".equals(modeType)) {
-            sb.append("\nΛάβε υπόψη όλα τα παραπάνω και πρότεινέ μου 1 κατάλληλη επιλογή Erasmus, εξηγώντας γιατί ταιριάζουν στο προφίλ μου.");
-        } else if ("master".equals(modeType)) {
-            sb.append("\nΛάβε υπόψη όλα τα παραπάνω και πρότεινέ μου 1 κατάλληλο προγράμματα master, εξηγώντας γιατί ταιριάζουν στο προφίλ μου.");
-        } else if ("career".equals(modeType)) {
-            sb.append("\nΛάβε υπόψη όλα τα παραπάνω και δώσε μου καθοδήγηση για τα επόμενα μου βήματα όσο αφορά αν αξίζει να ακολοθθήσω ακαδημαίκη καριέρα ή να πάω να δουλέψω, εξηγώντας γιατί ταιριάζουν στο προφίλ μου.");
+        else if ("master".equals(mode)) {
+            switch (index) {
+                case 0:
+                    return "Field & Career Goal: " + answer;
+                case 1:
+                    return "Preferred Location: " + answer;
+                case 2:
+                    return "Priority: " + answer;
+                case 3:
+                    return "Budget: " + answer;
+                case 4:
+                    return "Program Type: " + answer;
+                default:
+                    return "";
+            }
         }
 
-        String expectationsText = sb.toString().trim();
-
-        String id = expectationsRef.push().getKey();
-        if (id == null) {
-            Toast.makeText(this, "Failed to create expectation id", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        UserExpectation expectation = new UserExpectation(
-                id,
-                userId,
-                modeType,
-                expectationsText
-        );
-
-        expectationsRef.child(id)
-                .setValue(expectation)
-                .addOnSuccessListener(unused -> {
-                    Intent i;
-                    if ("erasmus".equals(modeType)) {
-                        i = new Intent(QuestionnaireActivity.this, ErasmusChatActivity.class);
-                    }
-                    else if ("master".equals(modeType)) {
-                        i = new Intent(QuestionnaireActivity.this, MasterChatActivity.class);
-                    }
-                    else {
-                        i = new Intent(QuestionnaireActivity.this, CareerChatActivity.class);
-                    }
-                    i.putExtra("userId", userId);
-                    i.putExtra("userFullName", userFullName);
-                    i.putExtra("userEmail", userEmail);
-                    i.putExtra("userPhone", userPhone);
-                    i.putExtra("userExpectations", expectationsText);
-                    startActivity(i);
-                    finish();
-                })
-                .addOnFailureListener(e ->
-                        Toast.makeText(this, "Failed to save: " + e.getMessage(), Toast.LENGTH_SHORT).show()
-                );
+        return "";
     }
 }
 

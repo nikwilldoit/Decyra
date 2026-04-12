@@ -37,6 +37,10 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import com.example.phasmatic.data.model.Note;
+import java.util.HashMap;
+import java.util.Map;
+
 public class GeneralConferenceActivity extends AppCompatActivity {
 
     private Button btnJoin, btnConfirm;
@@ -164,21 +168,67 @@ public class GeneralConferenceActivity extends AppCompatActivity {
                                     java.text.SimpleDateFormat timeFormat = new java.text.SimpleDateFormat("HH:mm", java.util.Locale.getDefault());
 
                                     String timeText = format(selectedDateTime.getTime());
+
                                     String code = randomUUID().toString().substring(0, 6);
-                                    DatabaseReference roomRef = conferenceRef.child(code);
+                                    DatabaseReference rootRef = FirebaseDatabase.getInstance(
+                                            "https://mega-5a5b4-default-rtdb.europe-west1.firebasedatabase.app"
+                                    ).getReference();
+
+                                    DatabaseReference roomRef = rootRef.child("conferences").child(code);
+                                    DatabaseReference notesRef = rootRef.child("notes");
 
                                     List<String> participants = new ArrayList<>(selected);
                                     if (!participants.contains(userId)) participants.add(userId);
 
+                                    Map<String, Object> updates = new HashMap<>();
+
                                     for (String uid : participants) {
-                                        roomRef.child("participants").child(uid).setValue(true);
+                                        updates.put("/conferences/" + code + "/participants/" + uid, true);
                                     }
 
-                                    roomRef.child("code").setValue(code);
-                                    roomRef.child("event_date").setValue(eventDate);
-                                    roomRef.child("time_start").setValue(startMillis);
-                                    roomRef.child("time_text").setValue(timeText);
-                                    roomRef.child("note").setValue("Conference meeting");
+                                    updates.put("/conferences/" + code + "/code", code);
+                                    updates.put("/conferences/" + code + "/event_date", eventDate);
+                                    updates.put("/conferences/" + code + "/time_start", startMillis);
+                                    updates.put("/conferences/" + code + "/time_text", timeText);
+                                    updates.put("/conferences/" + code + "/note", "Conference meeting");
+                                    updates.put("/conferences/" + code + "/created_by", userId);
+                                    updates.put("/conferences/" + code + "/created_by_name", userFullName);
+
+                                    for (String participantId : participants) {
+                                        String noteId = notesRef.push().getKey();
+                                        if (noteId == null) continue;
+
+                                        String noteTitle = "You have a new meeting";
+                                        String noteDescription =
+                                                "Code: " + code +
+                                                        "\nCreated by: " + userFullName +
+                                                        "\nDate: " + eventDate +
+                                                        "\nTime: " + timeText;
+
+                                        Note note = new Note(
+                                                noteId,
+                                                noteTitle,
+                                                noteDescription,
+                                                System.currentTimeMillis(),
+                                                participantId
+                                        );
+
+                                        updates.put("/notes/" + noteId, note);
+                                    }
+
+                                    rootRef.updateChildren(updates)
+                                            .addOnSuccessListener(unused -> {
+                                                Toast.makeText(
+                                                        this,
+                                                        "Scheduled at " + eventDate + " " + timeText,
+                                                        Toast.LENGTH_LONG
+                                                ).show();
+                                                adapter.markConfirmedUsers(selected);
+                                                adapter.notifyDataSetChanged();
+                                            })
+                                            .addOnFailureListener(e ->
+                                                    Toast.makeText(this, "Failed: " + e.getMessage(), Toast.LENGTH_SHORT).show()
+                                            );
 
                                     Toast.makeText(
                                             this,

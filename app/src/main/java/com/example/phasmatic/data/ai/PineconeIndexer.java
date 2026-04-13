@@ -38,10 +38,11 @@ public class PineconeIndexer {
                     String description = item.child("description").getValue(String.class);
                     String universityId = item.child("university_id").getValue(String.class);
                     String language = item.child("language").getValue(String.class);
-
+                    String cost = item.child("cost").getValue(String.class);
 
                     String text = "Master's name: " + name + ", Description:  "+ description +
-                            ". University id: " + universityId + ", language of the program: " + language;
+                            ". University id: " + universityId + ", language of the program: " + language
+                            +". Cost: " + cost;
 
                     openAIClient.getEmbedding(text, new EmbeddingCallback() {
 
@@ -55,6 +56,7 @@ public class PineconeIndexer {
                                 metadataObject.put("description", description);
                                 metadataObject.put("university_id", universityId);
                                 metadataObject.put("language",language);
+                                metadataObject.put("cost", cost);
 
 
                                 pineconeClient.upsertVector(
@@ -298,11 +300,11 @@ public class PineconeIndexer {
                     String name = item.child("name").getValue(String.class);
                     String university_id = String.valueOf(uniLong);
                     String language = item.child("language").getValue(String.class);
-
+                    String fund = item.child("fund").getValue(String.class);
 
 
                     String text = "Erasmus name: " + name + ", language: " + language+
-                            ", university id: " + university_id;
+                            ", university id: " + university_id + ". total fund: " + fund;
 
                     openAIClient.getEmbedding(text, new EmbeddingCallback() {
 
@@ -315,6 +317,7 @@ public class PineconeIndexer {
                                 metadataObject.put("name", name);
                                 metadataObject.put("university_id",university_id);
                                 metadataObject.put("language", language);
+                                metadataObject.put("fund", fund);
 
                                 pineconeClient.upsertVector(
                                         embeddingVector,

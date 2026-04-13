@@ -35,6 +35,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.example.phasmatic.R;
+import com.example.phasmatic.data.ai.PineconeIndexer;
 import com.example.phasmatic.data.model.User;
 import com.example.phasmatic.extras.InternetConnection;
 import com.google.common.util.concurrent.ListenableFuture;

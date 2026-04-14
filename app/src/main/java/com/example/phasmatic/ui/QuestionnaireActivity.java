@@ -40,7 +40,6 @@ import java.util.List;
 public class QuestionnaireActivity extends AppCompatActivity {
 
     private TextView txtProgress, txtQuestion;
-    private EditText edtAnswer;
     private Button btnPrev, btnNext, btnVoice;
     private ProgressBar progressQuestions;
     private TextView txtModeTitle;
@@ -51,7 +50,6 @@ public class QuestionnaireActivity extends AppCompatActivity {
     private ProfileMenuHelper profileMenuHelper;
     private BackButtonHelper backButtonHelper;
 
-    private Spinner spnItField;
     private List<String> itFieldNames = new ArrayList<>();
     private List<Integer> itFieldIds = new ArrayList<>();
     private Integer selectedFieldId = null;
@@ -61,8 +59,16 @@ public class QuestionnaireActivity extends AppCompatActivity {
 
     private String userId, userFullName, userEmail, userPhone, modeType;
 
-    private List<String> questions = new ArrayList<>();
+    private EditText edtAnswer;
+    private Spinner spnItField, spnAnswers;
+
+    private List<QuestionItem> questions = new ArrayList<>();
     private List<String> answers = new ArrayList<>();
+    private List<String> currentAnswerOptions = new ArrayList<>();
+
+    private DatabaseReference answersRef;
+
+
     private int currentIndex = 0;
 
     private DatabaseReference expectationsRef;
@@ -72,6 +78,17 @@ public class QuestionnaireActivity extends AppCompatActivity {
 
     private String careerQuestion2Template;
     private InternetConnection inter = new InternetConnection();
+
+
+    private static class QuestionItem {
+        long questionId;
+        String text;
+
+        QuestionItem(long questionId, String text) {
+            this.questionId = questionId;
+            this.text = text;
+        }
+    }
 
 
     @Override
@@ -87,6 +104,8 @@ public class QuestionnaireActivity extends AppCompatActivity {
 
         txtModeTitle = findViewById(R.id.txtModeTitle);
         progressQuestions = findViewById(R.id.progressQuestions);
+
+        spnAnswers = findViewById(R.id.spnAnswers);
 
         Intent intent = getIntent();
         userId = intent.getStringExtra("userId");
@@ -171,8 +190,8 @@ public class QuestionnaireActivity extends AppCompatActivity {
                 "https://mega-5a5b4-default-rtdb.europe-west1.firebasedatabase.app"
         );
         expectationsRef = db.getReference("user_expectations");
-
         questionsRef = db.getReference("questionnaire_questions");
+        answersRef = db.getReference("questionnaire_answers");
 
 
         loadQuestionsFromDb(modeType);
@@ -246,22 +265,26 @@ public class QuestionnaireActivity extends AppCompatActivity {
     }
 
     private void updateUI() {
-        txtQuestion.setText(questions.get(currentIndex));
+        if (questions.isEmpty()) return;
+
+        QuestionItem currentQuestion = questions.get(currentIndex);
+
+        txtQuestion.setText(currentQuestion.text);
         txtProgress.setText((currentIndex + 1) + " / " + questions.size());
 
         progressQuestions.setMax(questions.size());
         progressQuestions.setProgress(currentIndex + 1);
 
+        edtAnswer.setVisibility(View.GONE);
+        spnItField.setVisibility(View.GONE);
+        spnAnswers.setVisibility(View.GONE);
+        btnVoice.setEnabled(false);
+
         if ("career".equals(modeType) && currentIndex == 0) {
-            //dropdown gia it_fields
-            edtAnswer.setVisibility(View.GONE);
             spnItField.setVisibility(View.VISIBLE);
             btnVoice.setEnabled(false);
         } else {
-            edtAnswer.setVisibility(View.VISIBLE);
-            spnItField.setVisibility(View.GONE);
-            btnVoice.setEnabled(true);
-            edtAnswer.setText(answers.get(currentIndex));
+            loadAnswersForQuestion(currentQuestion.questionId);
         }
 
         btnPrev.setEnabled(currentIndex > 0);
@@ -283,6 +306,70 @@ public class QuestionnaireActivity extends AppCompatActivity {
         }
     }
 
+    private void loadAnswersForQuestion(long questionId) {
+        answersRef.orderByChild("question_id")
+                .equalTo(questionId)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        currentAnswerOptions.clear();
+
+                        for (DataSnapshot child : snapshot.getChildren()) {
+
+                            //elegxos gia mode_type
+                            String answerMode = child.child("mode_type").getValue(String.class);
+                            if (answerMode == null || !answerMode.equals(modeType)) {
+                                continue;   //skip andiseis alou mode_type
+                            }
+
+                            String a1 = child.child("answer1").getValue(String.class);
+                            String a2 = child.child("answer2").getValue(String.class);
+                            String a3 = child.child("answer3").getValue(String.class);
+                            String a4 = child.child("answer4").getValue(String.class);
+
+                            if (a1 != null && !a1.trim().isEmpty()) currentAnswerOptions.add(a1);
+                            if (a2 != null && !a2.trim().isEmpty()) currentAnswerOptions.add(a2);
+                            if (a3 != null && !a3.trim().isEmpty()) currentAnswerOptions.add(a3);
+                            if (a4 != null && !a4.trim().isEmpty()) currentAnswerOptions.add(a4);
+                        }
+
+                        if (!currentAnswerOptions.isEmpty()) {
+                            spnAnswers.setVisibility(View.VISIBLE);
+                            edtAnswer.setVisibility(View.GONE);
+                            btnVoice.setEnabled(false);
+
+                            ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                                    QuestionnaireActivity.this,
+                                    android.R.layout.simple_spinner_item,
+                                    currentAnswerOptions
+                            );
+                            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                            spnAnswers.setAdapter(adapter);
+
+                            String savedAnswer = answers.get(currentIndex);
+                            if (savedAnswer != null && !savedAnswer.isEmpty()) {
+                                int pos = currentAnswerOptions.indexOf(savedAnswer);
+                                if (pos >= 0) {
+                                    spnAnswers.setSelection(pos);
+                                }
+                            }
+                        } else {
+                            spnAnswers.setVisibility(View.GONE);
+                            edtAnswer.setVisibility(View.VISIBLE);
+                            btnVoice.setEnabled(true);
+                            edtAnswer.setText(answers.get(currentIndex));
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        Toast.makeText(QuestionnaireActivity.this,
+                                "Failed to load answers: " + error.getMessage(),
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
     private void updateCareerSecondQuestion() {
         Log.d("CAREER_DEBUG", "updateCareerSecondQuestion called. mode=" + modeType
                 + " currentIndex=" + currentIndex + " selectedFieldId=" + selectedFieldId);
@@ -292,7 +379,7 @@ public class QuestionnaireActivity extends AppCompatActivity {
         }
 
         if (careerQuestion2Template == null) {
-            careerQuestion2Template = questions.get(1);
+            careerQuestion2Template = questions.get(1).text;
         }
 
         final String original = careerQuestion2Template;
@@ -321,7 +408,7 @@ public class QuestionnaireActivity extends AppCompatActivity {
                                     .replace("...", String.valueOf(salary))
                                     .replace("…", String.valueOf(salary));
                             Log.d("CAREER_DEBUG", "replaced q2 = " + replaced);
-                            questions.set(1, replaced);
+                            questions.get(1).text = replaced;
                             if (currentIndex == 1) {
                                 txtQuestion.setText(replaced);
                             }
@@ -338,14 +425,20 @@ public class QuestionnaireActivity extends AppCompatActivity {
     }
 
     private void saveCurrentAnswer() {
-        String ans;
+        String ans = "";
+
         if ("career".equals(modeType) && currentIndex == 0 && spnItField.getVisibility() == View.VISIBLE) {
             ans = (spnItField.getSelectedItem() != null)
                     ? spnItField.getSelectedItem().toString()
                     : "";
-        } else {
+        } else if (spnAnswers.getVisibility() == View.VISIBLE) {
+            ans = (spnAnswers.getSelectedItem() != null)
+                    ? spnAnswers.getSelectedItem().toString()
+                    : "";
+        } else if (edtAnswer.getVisibility() == View.VISIBLE) {
             ans = edtAnswer.getText().toString().trim();
         }
+
         answers.set(currentIndex, ans);
     }
 
@@ -421,23 +514,23 @@ public class QuestionnaireActivity extends AppCompatActivity {
 
         questionsRef.orderByChild("mode_type")
                 .equalTo(mode)
-                .addListenerForSingleValueEvent(new com.google.firebase.database.ValueEventListener() {
+                .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
-                    public void onDataChange(com.google.firebase.database.DataSnapshot snapshot) {
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
 
-                        //H QItem KRATAEI TH SEIRA THS ERWTHSHS (question_id) KAI TO TEXT THS
                         class QItem {
-                            public long order;
-                            public String text;
-                            public QItem(long order, String text) {
+                            long order;
+                            String text;
+
+                            QItem(long order, String text) {
                                 this.order = order;
                                 this.text = text;
                             }
                         }
+
                         List<QItem> tmp = new ArrayList<>();
 
-                        for (com.google.firebase.database.DataSnapshot child : snapshot.getChildren()) {
-                            //METATROPH GIATI H IS_ACTIVE PREPEI NA PAREI NUMBER KAI OXI BOOLEAN
+                        for (DataSnapshot child : snapshot.getChildren()) {
                             Object activeObj = child.child("is_active").getValue();
                             boolean active = true;
 
@@ -447,17 +540,16 @@ public class QuestionnaireActivity extends AppCompatActivity {
                                 active = ((Long) activeObj) != 0;
                             }
 
-                            if (!active) return;
+                            if (!active) continue;
 
-
-                            Long order = child.child("question_id").getValue(Long.class);
+                            Long questionId = child.child("question_id").getValue(Long.class);
                             String q = child.child("question").getValue(String.class);
-                            if (order != null && q != null && !q.trim().isEmpty()) {
-                                tmp.add(new QItem(order, q));
+
+                            if (questionId != null && q != null && !q.trim().isEmpty()) {
+                                tmp.add(new QItem(questionId, q));
                             }
                         }
 
-                        //TAJINOMHSH tou tmp
                         int n = tmp.size();
                         for (int i = 0; i < n - 1; i++) {
                             for (int j = 0; j < n - 1 - i; j++) {
@@ -470,14 +562,14 @@ public class QuestionnaireActivity extends AppCompatActivity {
                         }
 
                         for (QItem qi : tmp) {
-                            questions.add(qi.text);
+                            questions.add(new QuestionItem(qi.order, qi.text));
                             answers.add("");
                         }
 
                         currentIndex = 0;
 
                         if ("career".equals(modeType) && questions.size() > 1) {
-                            careerQuestion2Template = questions.get(1);
+                            careerQuestion2Template = questions.get(1).text;
                         }
 
                         if (questions.isEmpty()) {
@@ -491,7 +583,7 @@ public class QuestionnaireActivity extends AppCompatActivity {
                     }
 
                     @Override
-                    public void onCancelled(com.google.firebase.database.DatabaseError error) {
+                    public void onCancelled(@NonNull DatabaseError error) {
                         Toast.makeText(QuestionnaireActivity.this,
                                 "Failed to load questions: " + error.getMessage(),
                                 Toast.LENGTH_SHORT).show();

@@ -147,6 +147,14 @@
             android:textColorHint="#80FFFFFF" />
 
         <Spinner
+            android:id="@+id/spnAnswers"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_answer_input"
+            android:visibility="gone" />
+
+        <Spinner
             android:id="@+id/spnItField"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

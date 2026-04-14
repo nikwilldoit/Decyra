@@ -7,14 +7,16 @@ public class MasterCourse {
     private String teacher;
     private Double ects;
     private String description;
+    private Double cost;
 
-    public MasterCourse(String id, String masterId, String name, String teacher, Double ects, String description) {
+    public MasterCourse(String id, String masterId, String name, String teacher, Double ects, String description, Double cost) {
         this.id = id;
         this.masterId = masterId;
         this.name = name;
         this.teacher = teacher;
         this.ects = ects;
         this.description = description;
+        this.cost = cost;
     }
 
     public String getId() {
@@ -24,7 +26,8 @@ public class MasterCourse {
     public void setId(String id) {
         this.id = id;
     }
-
+    public void setCost(Double c){this.cost = c;}
+    public Double getCost(){return cost;}
     public String getMasterId() {
         return masterId;
     }

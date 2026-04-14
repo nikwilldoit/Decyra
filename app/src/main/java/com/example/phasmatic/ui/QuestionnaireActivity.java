@@ -283,6 +283,11 @@ public class QuestionnaireActivity extends AppCompatActivity {
         if ("career".equals(modeType) && currentIndex == 0) {
             spnItField.setVisibility(View.VISIBLE);
             btnVoice.setEnabled(false);
+        } else if (shouldUseTextInput(modeType, currentQuestion.questionId)) {
+            edtAnswer.setVisibility(View.VISIBLE);
+            spnAnswers.setVisibility(View.GONE);
+            btnVoice.setEnabled(true);
+            edtAnswer.setText(answers.get(currentIndex));
         } else {
             loadAnswersForQuestion(currentQuestion.questionId);
         }
@@ -307,6 +312,14 @@ public class QuestionnaireActivity extends AppCompatActivity {
     }
 
     private void loadAnswersForQuestion(long questionId) {
+        if (shouldUseTextInput(modeType, questionId)) {
+            spnAnswers.setVisibility(View.GONE);
+            edtAnswer.setVisibility(View.VISIBLE);
+            btnVoice.setEnabled(true);
+            edtAnswer.setText(answers.get(currentIndex));
+            return;
+        }
+
         answersRef.orderByChild("question_id")
                 .equalTo(questionId)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
@@ -316,10 +329,9 @@ public class QuestionnaireActivity extends AppCompatActivity {
 
                         for (DataSnapshot child : snapshot.getChildren()) {
 
-                            //elegxos gia mode_type
                             String answerMode = child.child("mode_type").getValue(String.class);
                             if (answerMode == null || !answerMode.equals(modeType)) {
-                                continue;   //skip andiseis alou mode_type
+                                continue;
                             }
 
                             String a1 = child.child("answer1").getValue(String.class);
@@ -679,20 +691,29 @@ public class QuestionnaireActivity extends AppCompatActivity {
         });
     }
 
+    private boolean shouldUseTextInput(String modeType, long questionId) {
+        return ("career".equals(modeType) && questionId == 4)
+                || ("master".equals(modeType) && questionId == 6);
+    }
+
     private String formatAnswer(String mode, int index, String answer) {
 
         if ("erasmus".equals(mode)) {
             switch (index) {
                 case 0:
-                    return "Preferred Location: " + answer;
+                    return "Erasmus – Preferred Region: " + answer;
                 case 1:
-                    return "Cost Sensitivity: " + answer;
+                    return "Erasmus – Language of Studies: " + answer;
                 case 2:
-                    return "City Type: " + answer;
+                    return "Erasmus – Importance of Financial Support: " + answer;
                 case 3:
-                    return "Experience Preference: " + answer;
+                    return "Erasmus – Type of University: " + answer;
                 case 4:
-                    return "Language Preference: " + answer;
+                    return "Erasmus – Preferred City Type: " + answer;
+                case 5:
+                    return "Erasmus – Student Life Importance: " + answer;
+                case 6:
+                    return "Erasmus – Main Goal from the Experience: " + answer;
                 default:
                     return "";
             }
@@ -701,15 +722,36 @@ public class QuestionnaireActivity extends AppCompatActivity {
         else if ("master".equals(mode)) {
             switch (index) {
                 case 0:
-                    return "Field & Career Goal: " + answer;
+                    return "Master – Preferred Region: " + answer;
                 case 1:
-                    return "Preferred Location: " + answer;
+                    return "Master – Teaching Language Preference: " + answer;
                 case 2:
-                    return "Priority: " + answer;
+                    return "Master – Cost Sensitivity: " + answer;
                 case 3:
-                    return "Budget: " + answer;
+                    return "Master – University Ranking / Reputation Importance: " + answer;
                 case 4:
-                    return "Program Type: " + answer;
+                    return "Master – Preferred Program Type: " + answer;
+                case 5:
+                    return "Master – Connection with Job Market: " + answer;
+                case 6:
+                    return "Master – Main Goal from the Master: " + answer;
+                default:
+                    return "";
+            }
+        }
+
+        else if ("career".equals(mode)) {
+            switch (index) {
+                case 0:
+                    return "Career – Preferred IT Field: " + answer;
+                case 1:
+                    return "Career – Salary Importance: " + answer;
+                case 2:
+                    return "Career – Interest in Doing a Master: " + answer;
+                case 3:
+                    return "Career – Preferred Work Location: " + answer;
+                case 4:
+                    return "Career – Most Important Aspect in a Career: " + answer;
                 default:
                     return "";
             }

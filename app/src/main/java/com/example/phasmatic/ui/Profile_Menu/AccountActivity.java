@@ -300,18 +300,25 @@ public class AccountActivity extends AppCompatActivity {
             String academicLevel = snapshot.child("academicLevel").getValue(String.class);
             String field = snapshot.child("field").getValue(String.class);
             String languages = snapshot.child("languages").getValue(String.class);
-            Double gpa = snapshot.child("gpa").getValue(Double.class);
-            Double budgetPerYear = snapshot.child("budgetPerYear").getValue(Double.class);
-            Integer yearOfStudies = snapshot.child("yearOfStudies").getValue(Integer.class);
+
+            Object gpaObj = snapshot.child("gpa").getValue();
+            String gpa = gpaObj != null ? String.valueOf(gpaObj) : "-";
+
+            Object budgetObj = snapshot.child("budgetPerYear").getValue();
+            String budgetPerYear = budgetObj != null ? String.valueOf(budgetObj) : "-";
+
+            Object yearObj = snapshot.child("yearOfStudies").getValue();
+            String yearOfStudies = yearObj != null ? String.valueOf(yearObj) : "-";
+
             String advisorType = snapshot.child("advisorType").getValue(String.class);
 
             txtUniversity.setText("University: " + (university != null ? university : "-"));
             txtAcademicLevel.setText("Level: " + (academicLevel != null ? academicLevel : "-"));
             txtField.setText("Field: " + (field != null ? field : "-"));
             txtLanguages.setText("Languages: " + (languages != null ? languages : "-"));
-            txtGpa.setText("GPA: " + (gpa != null ? gpa : 0.0));
-            txtBudget.setText("Budget per year: " + (budgetPerYear != null ? budgetPerYear : 0.0));
-            txtYearOfStudies.setText("Year of studies: " + (yearOfStudies != null ? yearOfStudies : 0));
+            txtGpa.setText("GPA: " + gpa);
+            txtBudget.setText("Budget per year: " + budgetPerYear);
+            txtYearOfStudies.setText("Year of studies: " + yearOfStudies);
             txtAdvisorType.setText("Advisor type: " + (advisorType != null ? advisorType : "-"));
         });
     }

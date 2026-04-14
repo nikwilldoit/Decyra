@@ -24,6 +24,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class EditUserInfoActivity extends AppCompatActivity {
 
@@ -120,7 +121,8 @@ public class EditUserInfoActivity extends AppCompatActivity {
                 universityList.clear();
                 for (DataSnapshot child : snapshot.getChildren()) {
                     String name = child.child("name").getValue(String.class);
-                    if (name != null) {
+                    String country = child.child("country").getValue(String.class);
+                    if (name != null && Objects.equals(country, "Greece")) {
                         universityList.add(name);
                     }
                 }
@@ -232,11 +234,9 @@ public class EditUserInfoActivity extends AppCompatActivity {
             return;
         }
 
-        Double gpa;
         Double budget;
         Integer year;
         try {
-            gpa = Double.parseDouble(gpaStr);
             budget = Double.parseDouble(budgetStr);
             year = Integer.parseInt(yearStr);
         } catch (NumberFormatException e) {
@@ -268,7 +268,7 @@ public class EditUserInfoActivity extends AppCompatActivity {
                 university,
                 academicLevel,
                 languages,
-                gpa,
+                gpaStr,
                 field,
                 budget,
                 year,

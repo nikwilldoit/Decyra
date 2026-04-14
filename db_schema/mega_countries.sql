@@ -27,7 +27,7 @@ CREATE TABLE `countries` (
   `name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -36,7 +36,7 @@ CREATE TABLE `countries` (
 
 LOCK TABLES `countries` WRITE;
 /*!40000 ALTER TABLE `countries` DISABLE KEYS */;
-INSERT INTO `countries` VALUES (13,'Finland'),(6,'France'),(2,'Germany'),(3,'Greece'),(11,'Italy'),(1,'Netherlands'),(9,'Norway'),(10,'Poland'),(14,'Romania'),(4,'Russia'),(7,'Spain'),(8,'Sweden'),(5,'Ukraine'),(12,'United Kingdom');
+INSERT INTO `countries` VALUES (15,'Austria'),(16,'Belgium'),(25,'Bulgaria'),(23,'Croatia'),(30,'Cyprus'),(21,'Czech Republic'),(19,'Denmark'),(29,'Estonia'),(13,'Finland'),(6,'France'),(2,'Germany'),(3,'Greece'),(22,'Hungary'),(20,'Ireland'),(11,'Italy'),(28,'Latvia'),(27,'Lithuania'),(1,'Netherlands'),(9,'Norway'),(10,'Poland'),(18,'Portugal'),(14,'Romania'),(4,'Russia'),(24,'Serbia'),(26,'Slovakia'),(7,'Spain'),(8,'Sweden'),(17,'Switzerland'),(5,'Ukraine'),(12,'United Kingdom');
 /*!40000 ALTER TABLE `countries` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -49,4 +49,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-03-21 10:24:50
+-- Dump completed on 2026-04-14 23:19:43

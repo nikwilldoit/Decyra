@@ -166,20 +166,19 @@ public class ErasmusChatActivity extends AppCompatActivity {
     private int mapUniversityToId(String university) {
         if (university == null) return 0;
 
-        if (university.contains("Athens University of Economics and Business")){
+        if (university.contains("Οικονομικό Πανεπιστήμιο Αθηνών")){
             return 0;
         }
-        if (university.contains("University of Thessaly")) {
+        if (university.contains("Πανεπιστήμιο Θεσσαλίας")) {
             return 4;
         }
-        if (university.contains("Aristotle University")) return 5;
-        if (university.contains("University of Athens")) return 6;
-        if (university.contains("University of Crete")) return 7;
-        if (university.contains("University of Piraeus")) return 8;
-        if (university.contains("University of Peloponnese")) return 9;
-        if (university.contains("Harokopio University")) return 10;
-        if (university.contains("Ionian University")) return 11;
-
+        if (university.contains("Αριστοτέλειο Πανεπιστήμιο Θεσσαλονίκης")) return 5;
+        if (university.contains("Εθνικό και Καποδιστριακό Πανεπιστήμιο Αθηνών")) return 6;
+        if (university.contains("Πανεπιστήμιο Κρήτης")) return 7;
+        if (university.contains("Πανεπιστήμιο Πειραιώς")) return 8;
+        if (university.contains("Πανεπιστήμιο Πελοποννήσου")) return 9;
+        if (university.contains("Χαροκόπειο Πανεπιστήμιο")) return 10;
+        if (university.contains("Ιόνιο Πανεπιστήμιο")) return 11;
         return 0;
     }
 

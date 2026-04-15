@@ -143,10 +143,10 @@ public class LoginActivity extends AppCompatActivity {
 //            indexer.indexMasterPrograms();
 //            indexer.indexCareer();
 //
-            PineconeIndexerErasmus indexerErasmus = new PineconeIndexerErasmus(this);
+            //PineconeIndexerErasmus indexerErasmus = new PineconeIndexerErasmus(this);
 //            indexerErasmus.indexErasmusARISTOTLE();
 //            indexerErasmus.indexErasmusHAROKOPIO();
-            indexerErasmus.indexErasmusAUEB();
+            //indexerErasmus.indexErasmusAUEB();
 //            indexerErasmus.indexErasmusCRETE();
 //            indexerErasmus.indexErasmusEKPA();
 //            indexerErasmus.indexErasmusIONIAN();

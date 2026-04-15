@@ -122,7 +122,7 @@ public class EditUserInfoActivity extends AppCompatActivity {
                 for (DataSnapshot child : snapshot.getChildren()) {
                     String name = child.child("name").getValue(String.class);
                     String country = child.child("country").getValue(String.class);
-                    if (name != null && Objects.equals(country, "Greece")) {
+                    if (name != null && Objects.equals(country, "Ελλάδα")) {
                         universityList.add(name);
                     }
                 }

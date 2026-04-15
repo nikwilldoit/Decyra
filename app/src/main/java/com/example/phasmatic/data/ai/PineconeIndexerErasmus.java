@@ -35,7 +35,8 @@ public class PineconeIndexerErasmus {
                     String uniName = item.child("university_name").getValue(String.class);
                     if (!Objects.equals(uniName, "Οικονομικό Πανεπιστήμιο Αθηνών")) continue;
 
-                    String id = item.child("id").getValue(String.class);
+                    Long idlong = item.child("id").getValue(Long.class);
+                    String id = String.valueOf(idlong);
                     String city = item.child("city").getValue(String.class);
                     String country = item.child("country").getValue(String.class);
                     String name = item.child("name").getValue(String.class);

@@ -34,8 +34,8 @@ public class PineconeIndexerMaster_Career {
             public void onDataChange(DataSnapshot snapshot) {
 
                 for (DataSnapshot item : snapshot.getChildren()) {
-
-                    String id = item.child("id").getValue(String.class);
+                    Long idlong = item.child("id").getValue(Long.class);
+                    String id = String.valueOf(idlong);
                     String name = item.child("name").getValue(String.class);
                     String description = item.child("description").getValue(String.class);
                     String university_name = item.child("university_name").getValue(String.class);

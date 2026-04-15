@@ -139,20 +139,20 @@ public class LoginActivity extends AppCompatActivity {
             loginWithFirebase(email, password);
 
             //POTE UNCOMMENT. MONO OTAN EINAI EDIT TO PINECONE
-//            PineconeIndexerMaster_Career indexer = new PineconeIndexerMaster_Career(this);
-//            indexer.indexMasterPrograms();
-//            indexer.indexCareer();
+            PineconeIndexerMaster_Career indexer = new PineconeIndexerMaster_Career(this);
+            indexer.indexMasterPrograms();
+            indexer.indexCareer();
 //
             PineconeIndexerErasmus indexerErasmus = new PineconeIndexerErasmus(this);
-//            indexerErasmus.indexErasmusARISTOTLE();
-//            indexerErasmus.indexErasmusHAROKOPIO();
+            indexerErasmus.indexErasmusARISTOTLE();
+            indexerErasmus.indexErasmusHAROKOPIO();
             indexerErasmus.indexErasmusAUEB();
-//            indexerErasmus.indexErasmusCRETE();
-//            indexerErasmus.indexErasmusEKPA();
-//            indexerErasmus.indexErasmusIONIAN();
-//            indexerErasmus.indexErasmusPAPEI();
-//            indexerErasmus.indexErasmusPELLOPONESE();
-//            indexerErasmus.indexErasmusTHESSALY();
+            indexerErasmus.indexErasmusCRETE();
+            indexerErasmus.indexErasmusEKPA();
+            indexerErasmus.indexErasmusIONIAN();
+            indexerErasmus.indexErasmusPAPEI();
+            indexerErasmus.indexErasmusPELLOPONESE();
+            indexerErasmus.indexErasmusTHESSALY();
 
         });
 

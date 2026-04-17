@@ -28,13 +28,18 @@ import com.example.phasmatic.extras.InternetConnection;
 import com.example.phasmatic.extras.PDF;
 import com.example.phasmatic.extras.ProfileImageManager;
 import com.example.phasmatic.ui.Profile_Menu.ProfileMenuHelper;
-import android.graphics.Bitmap;
-import com.example.phasmatic.extras.ProfileImageManager;
-import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
+
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+
+import org.json.JSONObject;
 
 public class ErasmusChatActivity extends AppCompatActivity {
 
@@ -51,6 +56,14 @@ public class ErasmusChatActivity extends AppCompatActivity {
     private String userExpectations;
     private String LLMRep = "";
     private InternetConnection inter = new InternetConnection();
+
+    private static final int CREATE_PDF_FILE = 2001;
+
+    private OkHttpClient httpClient = new OkHttpClient();
+
+    // Βάλε τα δικά σου values
+    private static final String SUPABASE_FUNCTION_URL = "https://sbzxqcwvbbgbpykyvmfa.supabase.co/functions/v1/send-email";
+    private static final String APP_SHARED_SECRET = "decyra_email"; //uparxei sto supabase
 
     @SuppressLint("SetTextI18n") //AFAIREI WARNINGS
     @Override
@@ -113,17 +126,31 @@ public class ErasmusChatActivity extends AppCompatActivity {
             edtUserInput.setSelection(userExpectations.length());
         }
 
-        btnPdf.setOnClickListener(v->{
-            try {
-                String path = PDF.exportToPdf(
-                        ErasmusChatActivity.this,
-                        "llm_" + System.currentTimeMillis(),
-                        LLMRep
-                );
-                Log.d("PDF_PATH", "Saved at: " + path);
-            }catch(Exception e){
-                e.printStackTrace();
+        btnPdf.setOnClickListener(v -> {
+            if (LLMRep == null || LLMRep.trim().isEmpty()) {
+                Toast.makeText(this, "No response to export", Toast.LENGTH_SHORT).show();
+                return;
             }
+
+            //PDF export
+            Intent pdfIntent  = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+            pdfIntent.addCategory(Intent.CATEGORY_OPENABLE);
+            pdfIntent.setType("application/pdf");
+            pdfIntent.putExtra(Intent.EXTRA_TITLE, "llm_" + System.currentTimeMillis() + ".pdf");
+            startActivityForResult(pdfIntent, CREATE_PDF_FILE);
+
+            //Email send mesw Supabase
+            if (userEmail == null || userEmail.trim().isEmpty()) {
+                Toast.makeText(this, "No email for this user", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            String subject = "DECYRA Erasmus Results";
+            String html = "<h2>DECYRA Erasmus Assistant</h2>"
+                    + "<p>Dear " + (userFullName != null ? userFullName : "student") + ",</p>"
+                    + "<p>" + LLMRep.replace("\n", "<br>") + "</p>";
+
+            sendEmailwithSupabase(userEmail, subject, html);
         });
 
         btnSend.setOnClickListener(v -> {
@@ -178,6 +205,64 @@ public class ErasmusChatActivity extends AppCompatActivity {
         });
 
         btnVoice.setOnClickListener(v -> startSpeechRecognizer());
+    }
+
+    private void sendEmailwithSupabase(String to, String subject, String html) {
+        new Thread(() -> {
+            try {
+                MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+
+                JSONObject json = new JSONObject();
+                json.put("to", to);
+                json.put("subject", subject);
+                json.put("html", html);
+
+                RequestBody body = RequestBody.create(json.toString(), JSON);
+
+                Request request = new Request.Builder()
+                        .url(SUPABASE_FUNCTION_URL)
+                        .post(body)
+                        .addHeader("Content-Type", "application/json")
+                        .addHeader("x-app-secret", APP_SHARED_SECRET)
+                        .build();
+
+                Response response = httpClient.newCall(request).execute();
+
+                int code = response.code();
+                String respBody = response.body() != null ? response.body().string() : "";
+
+                Log.i("EMAIL_DEBUG", "code=" + code + " body=" + respBody);
+
+                if (response.isSuccessful()) {
+                    runOnUiThread(() ->
+                            Toast.makeText(
+                                    ErasmusChatActivity.this,
+                                    "Email sent successfully",
+                                    Toast.LENGTH_SHORT
+                            ).show()
+                    );
+                } else {
+                    String msg = "Email failed: " + code;
+                    runOnUiThread(() ->
+                            Toast.makeText(
+                                    ErasmusChatActivity.this,
+                                    msg,
+                                    Toast.LENGTH_LONG
+                            ).show()
+                    );
+                }
+
+            } catch (Exception e) {
+                Log.e("EMAIL_DEBUG", "Exception: " + e.getMessage(), e);
+                runOnUiThread(() ->
+                        Toast.makeText(
+                                ErasmusChatActivity.this,
+                                "Email error: " + e.getMessage(),
+                                Toast.LENGTH_LONG
+                        ).show()
+                );
+            }
+        }).start();
     }
 
     private int mapUniversityToId(String university) {
@@ -247,21 +332,34 @@ public class ErasmusChatActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        int REQUEST_SPEECH_RECOGNIZER = 3000;
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        Log.i("DEMO-REQUESTCODE", Integer.toString(requestCode));
-        Log.i("DEMO-RESULTCODE", Integer.toString(resultCode));
+        Log.i("DEMO-REQUESTCODE", String.valueOf(requestCode));
+        Log.i("DEMO-RESULTCODE", String.valueOf(resultCode));
 
-        if (requestCode == REQUEST_SPEECH_RECOGNIZER && resultCode == Activity.RESULT_OK && data != null) {
-            ArrayList<String> text = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-            edtUserInput.setText(text.get(0));
+        if (requestCode == CREATE_PDF_FILE) {
+            if (resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
+                boolean success = PDF.exportToPdf(this, data.getData(), LLMRep);
+                if (!success) {
+                    Toast.makeText(this, "PDF export failed", Toast.LENGTH_SHORT).show();
+                }
+            }
+            return;
+        }
 
-            Log.i("DEMO-ANSWER", text.get(0));
+        int REQUEST_SPEECH_RECOGNIZER = 3000;
 
-        } else {
-            System.out.println("Recognizer API error");
+        if (requestCode == REQUEST_SPEECH_RECOGNIZER) {
+            if (resultCode == Activity.RESULT_OK && data != null) {
+                ArrayList<String> text = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+                if (text != null && !text.isEmpty()) {
+                    edtUserInput.setText(text.get(0));
+                    Log.i("DEMO-ANSWER", text.get(0));
+                }
+            } else {
+                Log.i("DEMO", "Recognizer API error");
+            }
         }
     }
 

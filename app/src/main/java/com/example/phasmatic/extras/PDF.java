@@ -1,58 +1,44 @@
 package com.example.phasmatic.extras;
 
 import android.content.Context;
-import android.os.Environment;
+import android.net.Uri;
 import android.widget.Toast;
 
-import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Paragraph;
 
-import java.io.File;
+import java.io.OutputStream;
 
 public class PDF {
 
-    public static String exportToPdf(Context context, String fileName, String content) {
+    public static boolean exportToPdf(Context context, Uri uri, String content) {
         try {
-            //Φάκελος: /Android/data/yourapp/files/Documents/
-            File dir = context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS);
-            if (dir == null) {
-                Toast.makeText(context, "Storage error", Toast.LENGTH_SHORT).show();
-                return null;
+            OutputStream os = context.getContentResolver().openOutputStream(uri);
+            if (os == null) {
+                Toast.makeText(context, "Cannot open file", Toast.LENGTH_SHORT).show();
+                return false;
             }
 
-            if (!dir.exists()) {
-                dir.mkdirs();
-            }
-
-            File file = new File(dir, fileName + ".pdf");
-
-            PdfWriter writer = new PdfWriter(file.getAbsolutePath());
+            PdfWriter writer = new PdfWriter(os);
             PdfDocument pdf = new PdfDocument(writer);
             Document document = new Document(pdf);
 
-            //Title
-            document.add(new Paragraph("AI Response")
-                    .setBold()
-                    .setFontSize(18));
-
+            document.add(new Paragraph("DECYRA").setBold().setFontSize(18));
+            document.add(new Paragraph("OI KATALLHLES EPILOGES EINAI").setFontSize(14));
             document.add(new Paragraph("\n"));
-
-            //Content (LLM output)
-            document.add(new Paragraph(content)
-                    .setFontSize(12));
+            document.add(new Paragraph(content != null ? content : "").setFontSize(12));
 
             document.close();
 
-            Toast.makeText(context, "PDF saved: " + file.getAbsolutePath(), Toast.LENGTH_LONG).show();
-
-            return file.getAbsolutePath();
+            Toast.makeText(context, "PDF saved on phone", Toast.LENGTH_LONG).show();
+            return true;
 
         } catch (Exception e) {
             e.printStackTrace();
-            Toast.makeText(context, "Error creating PDF", Toast.LENGTH_SHORT).show();
-            return null;
+            Toast.makeText(context, "Error creating PDF: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            return false;
         }
     }
 }

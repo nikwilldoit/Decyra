@@ -139,7 +139,7 @@ public class PineconeClient {
 
             JSONObject requestBodyJson = new JSONObject();
             requestBodyJson.put("vector", new JSONArray(embeddingVector));
-            requestBodyJson.put("topK", 1);
+            requestBodyJson.put("topK", 5);
             requestBodyJson.put("includeMetadata", true);
             requestBodyJson.put("namespace", namespace);
 

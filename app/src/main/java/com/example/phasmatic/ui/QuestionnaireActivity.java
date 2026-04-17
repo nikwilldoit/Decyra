@@ -607,54 +607,45 @@ public class  QuestionnaireActivity extends AppCompatActivity {
 
     private void saveExpectationsAndGoChat() {
 
-        StringBuilder sb = new StringBuilder();
+        StringBuilder userText = new StringBuilder();
 
         if ("erasmus".equals(modeType)) {
-            sb.append("Ψάχνω για πρόγραμμα Erasmus που να ταιριάζει σε μένα. ");
+            userText.append("Ψάχνω για πρόγραμμα Erasmus που να ταιριάζει σε μένα.\n");
         } else if ("master".equals(modeType)) {
-            sb.append("Ψάχνω για πρόγραμμα μεταπτυχιακού (Master) που να ταιριάζει σε μένα. ");
+            userText.append("Ψάχνω για πρόγραμμα μεταπτυχιακού (Master).\n");
         } else if ("career".equals(modeType)) {
-            sb.append("Ψάχνω για συμβουλές που να μου ταιριάζουν. ");
+            userText.append("Ψάχνω για συμβουλές καριέρας.\n");
         }
 
-        sb.append("Με βάση τα παρακάτω στοιχεία θέλω να μου προτείνεις τις πιο κατάλληλες επιλογές:\n\n");
-
         usersInfoRef.child("gpa").get().addOnCompleteListener(task -> {
+
             String gpa = "Unknown";
             if (task.isSuccessful() && task.getResult() != null) {
                 gpa = String.valueOf(task.getResult().getValue());
             }
 
-            StringBuilder formatted = new StringBuilder();
+            StringBuilder profile = new StringBuilder();
+
             for (int i = 0; i < questions.size(); i++) {
                 if (!answers.get(i).isEmpty()) {
                     String f = formatAnswer(modeType, i, answers.get(i));
                     if (!f.isEmpty()) {
-                        formatted.append(f).append('\n');
+                        profile.append("- ").append(f).append("\n");
                     }
                 }
             }
 
-            formatted.append("GPA: ").append(gpa).append("\n");
-            sb.append("- ").append(formatted).append("\n");
+            profile.append("- GPA: ").append(gpa).append("\n");
 
-            if ("erasmus".equals(modeType)) {
-                sb.append("\nΔώσε 1 προτεινόμενο πρόγραμμα Erasmus που ταιριάζει καλύτερα στο προφίλ.");
-                sb.append("Πάρε υπόψη μόνο τις διαθέσιμες πληροφορίες από το context.");
-                sb.append("Απάντησε με:");
-                sb.append(" - Πανεπιστήμιο");
-                sb.append(" - Χώρα");
-                sb.append(" - Χρηματοδοτηση");
-                sb.append(" - Σύντομη αιτιολόγηση (1-2 προτάσεις γιατί είναι η καλύτερη επιλογή για το προφίλ)");
-            } else if ("master".equals(modeType)) {
-                sb.append("\nΔώσε 10 προγράμματα μεταπτυχιακών που ταιριάζουν στο προφίλ. ");
-                sb.append("Μόνο όνομα προγράμματος, πανεπιστήμιο, χώρα και 1 σύντομη φράση. Χωρίς ανάλυση.");
-            } else if ("career".equals(modeType)) {
-                sb.append("\nΔώσε 5 σύντομες προτάσεις καριέρας που ταιριάζουν στο προφίλ. ");
-                sb.append("Μόνο τίτλο και 1 γραμμή εξήγησης.");
-            }
+            //afto vlepei o user
+            userText.append("\nΤα στοιχεία μου:\n");
+            userText.append(profile);
+            userText.append("\nΔώσε μου τις καλύτερες επιλογές που ταιριάζουν.\n");
 
-            String expectationsText = sb.toString().trim();
+            String expectationsText = userText.toString().trim();
+
+            //system prompt
+            String systemInstructions = buildSystemInstructions(modeType);
 
             String id = expectationsRef.push().getKey();
             if (id == null) {
@@ -672,21 +663,26 @@ public class  QuestionnaireActivity extends AppCompatActivity {
             expectationsRef.child(id)
                     .setValue(expectation)
                     .addOnSuccessListener(unused -> {
+
                         Intent i;
+
                         if ("erasmus".equals(modeType)) {
                             i = new Intent(QuestionnaireActivity.this, ErasmusChatActivity.class);
-                        }
-                        else if ("master".equals(modeType)) {
+                        } else if ("master".equals(modeType)) {
                             i = new Intent(QuestionnaireActivity.this, MasterChatActivity.class);
-                        }
-                        else {
+                        } else {
                             i = new Intent(QuestionnaireActivity.this, CareerChatActivity.class);
                         }
+
                         i.putExtra("userId", userId);
                         i.putExtra("userFullName", userFullName);
                         i.putExtra("userEmail", userEmail);
                         i.putExtra("userPhone", userPhone);
+
                         i.putExtra("userExpectations", expectationsText);
+
+                        i.putExtra("systemPrompt", systemInstructions);
+
                         startActivity(i);
                         finish();
                     })
@@ -694,6 +690,51 @@ public class  QuestionnaireActivity extends AppCompatActivity {
                             Toast.makeText(this, "Failed to save: " + e.getMessage(), Toast.LENGTH_SHORT).show()
                     );
         });
+    }
+
+    private String buildSystemInstructions(String modeType) {
+
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("TASK: TOP 5 recommendation based on profile + RAG.\n");
+        sb.append("Rank by best match (0-10 score).\n");
+        sb.append("Exclude non-matching items.\n\n");
+
+        if ("erasmus".equals(modeType)) {
+
+            sb.append("MODE: ERASMUS\n");
+            sb.append("Priority: Region > Language > Funding > University type > City\n\n");
+
+            sb.append("OUTPUT:\n");
+            sb.append("1. University - Country\n");
+            sb.append("Funding\n");
+            sb.append("Score\n");
+            sb.append("1-line reason\n");
+
+            sb.append("Rule: region mismatch = exclude\n");
+
+        } else if ("master".equals(modeType)) {
+
+            sb.append("MODE: MASTER\n");
+            sb.append("Priority: Field > Career > Language > Cost > Ranking\n\n");
+
+            sb.append("OUTPUT:\n");
+            sb.append("Name - University - Country\n");
+            sb.append("Score\n");
+            sb.append("1-line reason\n");
+
+        } else {
+
+            sb.append("MODE: CAREER\n");
+            sb.append("Priority: Field fit > Salary > Balance > Location\n\n");
+
+            sb.append("OUTPUT:\n");
+            sb.append("Title\n");
+            sb.append("Score\n");
+            sb.append("1-line reason\n");
+        }
+
+        return sb.toString().trim();
     }
 
     private boolean shouldUseTextInput(String modeType, long questionId) {

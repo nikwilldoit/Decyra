@@ -61,7 +61,6 @@ public class ErasmusChatActivity extends AppCompatActivity {
 
     private OkHttpClient httpClient = new OkHttpClient();
 
-    // Βάλε τα δικά σου values
     private static final String SUPABASE_FUNCTION_URL = "https://sbzxqcwvbbgbpykyvmfa.supabase.co/functions/v1/send-email";
     private static final String APP_SHARED_SECRET = "decyra_email"; //uparxei sto supabase
 
@@ -236,7 +235,7 @@ public class ErasmusChatActivity extends AppCompatActivity {
                 if (response.isSuccessful()) {
                     runOnUiThread(() ->
                             Toast.makeText(
-                                    ErasmusChatActivity.this,
+                                    this,
                                     "Email sent successfully",
                                     Toast.LENGTH_SHORT
                             ).show()
@@ -245,7 +244,7 @@ public class ErasmusChatActivity extends AppCompatActivity {
                     String msg = "Email failed: " + code;
                     runOnUiThread(() ->
                             Toast.makeText(
-                                    ErasmusChatActivity.this,
+                                    this,
                                     msg,
                                     Toast.LENGTH_LONG
                             ).show()
@@ -256,7 +255,7 @@ public class ErasmusChatActivity extends AppCompatActivity {
                 Log.e("EMAIL_DEBUG", "Exception: " + e.getMessage(), e);
                 runOnUiThread(() ->
                         Toast.makeText(
-                                ErasmusChatActivity.this,
+                                this,
                                 "Email error: " + e.getMessage(),
                                 Toast.LENGTH_LONG
                         ).show()

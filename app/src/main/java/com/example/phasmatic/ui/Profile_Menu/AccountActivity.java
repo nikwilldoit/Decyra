@@ -95,7 +95,7 @@ public class AccountActivity extends AppCompatActivity {
                 this,
                 R.id.btnBack,
                 userId,
-                null,
+                userFullName,
                 null,
                 null
         );

@@ -26,6 +26,7 @@ import com.bumptech.glide.Glide;
 import com.example.phasmatic.R;
 import com.example.phasmatic.data.model.User;
 import com.example.phasmatic.extras.InternetConnection;
+import com.example.phasmatic.extras.NotificationSender;
 import com.example.phasmatic.extras.ProfileImageManager;
 import com.example.phasmatic.ui.ModeSelectionActivity;
 import com.example.phasmatic.ui.Profile_Menu.ProfileMenuHelper;
@@ -40,6 +41,7 @@ import java.util.List;
 import com.example.phasmatic.data.model.Note;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicMarkableReference;
 
 public class GeneralConferenceActivity extends AppCompatActivity {
 
@@ -198,7 +200,7 @@ public class GeneralConferenceActivity extends AppCompatActivity {
                                         String noteId = notesRef.push().getKey();
                                         if (noteId == null) continue;
 
-                                        String noteTitle = "You have a new meeting";
+                                        String noteTitle = "You have a new Video Conference";
                                         String noteDescription =
                                                 "Code: " + code +
                                                         "\nCreated by: " + userFullName +
@@ -213,8 +215,15 @@ public class GeneralConferenceActivity extends AppCompatActivity {
                                                 participantId,
                                                 false
                                         );
-
                                         updates.put("/notes/" + noteId, note);
+                                        String senderName = userFullName != null ? userFullName : "User";
+                                        firebaseDb.getReference("users").child(participantId).child("fcmToken")
+                                                .get().addOnSuccessListener(snapshot -> {
+                                                    String token = snapshot.getValue(String.class);
+                                                    if (token != null && !token.isEmpty()) {
+                                                        NotificationSender.send(token, senderName, "Invited to a new Video Conference");
+                                                    }
+                                                });
                                     }
 
                                     rootRef.updateChildren(updates)

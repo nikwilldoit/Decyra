@@ -129,8 +129,8 @@
             android:layout_width="92dp"
             android:layout_height="48dp"
             android:layout_marginStart="8dp"
-            android:text="Save"
-            android:textAllCaps="false"/>
+            android:text="Export"
+            android:textAllCaps="false" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

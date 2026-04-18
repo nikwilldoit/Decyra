@@ -750,12 +750,30 @@ public class  QuestionnaireActivity extends AppCompatActivity {
         } else {
 
             sb.append("MODE: CAREER\n");
-            sb.append("Priority: Field fit > Salary > Balance > Location\n\n");
+
+            sb.append("PRIORITY:\n");
+            sb.append("1. Field fit\n");
+            sb.append("2. Career goals alignment\n");
+            sb.append("3. Salary impact (with vs without Master)\n");
+            sb.append("4. Work-life preference\n");
+            sb.append("5. Location\n\n");
+
+            sb.append("DECISION RULE:\n");
+            sb.append("- Evaluate BOTH paths: work directly vs Master\n");
+            sb.append("- Use salary difference (with vs without master) as key signal\n");
+            sb.append("- If Master significantly improves outcome → recommend Master\n");
+            sb.append("- Otherwise → recommend entering job market\n\n");
+
+            sb.append("REASONING RULE:\n");
+            sb.append("- Combine multiple attributes (NOT simple matching)\n");
+            sb.append("- Derive insights (e.g. high salary growth → strong ROI for Master)\n");
+            sb.append("- Prefer high-impact conclusions over listing data\n\n");
 
             sb.append("OUTPUT:\n");
-            sb.append("Title\n");
-            sb.append("Score\n");
-            sb.append("1-line reason\n");
+            sb.append("Career Path - Country\n");
+            sb.append("Score: X/10\n");
+            sb.append("Decision: Work / Master\n");
+            sb.append("1-line reason (must combine salary + goals + field)\n");
         }
 
         return sb.toString().trim();

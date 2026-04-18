@@ -33,7 +33,9 @@ import com.example.phasmatic.data.ai.PineconeIndexerMaster_Career;
 import com.example.phasmatic.data.ai.PineconeIndexerErasmus;
 import com.example.phasmatic.data.model.User;
 import com.example.phasmatic.extras.InternetConnection;
+import com.example.phasmatic.extras.StayLoggedHelper;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.*;
 
 
@@ -84,6 +86,14 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        FirebaseDatabase firebaseDb = FirebaseDatabase.getInstance(
+                "https://mega-5a5b4-default-rtdb.europe-west1.firebasedatabase.app"
+        );
+
+        usersRef = firebaseDb.getReference("users");
+        usersFaceRef = firebaseDb.getReference("users_face_embedding");
+        userInfoRef = firebaseDb.getReference("user_info");
+
         requestNotificationPermissionIfNeeded();
 
         if (!inter.isConnected(this)) {
@@ -99,7 +109,6 @@ public class LoginActivity extends AppCompatActivity {
                 );
             }
         }
-
         edtEmailAddressLog = findViewById(R.id.edtEmailAddressLog);
         edtPasswordLog = findViewById(R.id.edtPasswordLog);
         btnLoginLog = findViewById(R.id.btnLoginLog);
@@ -115,13 +124,6 @@ public class LoginActivity extends AppCompatActivity {
 
         btnFaceLogin.setEnabled(false);
 
-        FirebaseDatabase firebaseDb = FirebaseDatabase.getInstance(
-                "https://mega-5a5b4-default-rtdb.europe-west1.firebasedatabase.app"
-        );
-
-        usersRef = firebaseDb.getReference("users");
-        usersFaceRef = firebaseDb.getReference("users_face_embedding");
-        userInfoRef = firebaseDb.getReference("user_info");
 
         mAuth = FirebaseAuth.getInstance();
 

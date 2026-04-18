@@ -10,6 +10,26 @@ public class User {
     private String email;
     private String password;
     private String phoneNumber;
+
+    public Long isRemember() {
+        return remember;
+    }
+
+    public void setRemember(Long remember) {
+        this.remember = remember;
+    }
+
+    public String getFcmToken() {
+        return fcmToken;
+    }
+
+    public void setFcmToken(String fcmToken) {
+        this.fcmToken = fcmToken;
+    }
+
+    private Long remember;
+    private String fcmToken;
+
 //    private List<Double> faceEmbedding;
 
     private String profileImageUrl;

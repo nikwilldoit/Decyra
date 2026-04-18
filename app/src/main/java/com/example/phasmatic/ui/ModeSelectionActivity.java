@@ -2,6 +2,7 @@ package com.example.phasmatic.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.service.controls.actions.ModeAction;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -17,10 +18,12 @@ import androidx.camera.core.processing.SurfaceProcessorNode;
 import com.bumptech.glide.Glide;
 import com.example.phasmatic.R;
 import com.example.phasmatic.extras.InternetConnection;
+import com.example.phasmatic.extras.StayLoggedHelper;
 import com.example.phasmatic.ui.Forum.ForumActivity;
 import com.example.phasmatic.ui.Profile_Menu.ProfileMenuHelper;
 import android.graphics.Bitmap;
 import com.example.phasmatic.extras.ProfileImageManager;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 

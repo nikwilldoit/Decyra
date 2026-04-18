@@ -23,6 +23,7 @@ public class ProfileMenuHelper {
     private String userFullName;
     private String userEmail;
     private String userPhone;
+    private Long log;
 
     public ProfileMenuHelper(Activity activity,
                              String userId,
@@ -95,8 +96,9 @@ public class ProfileMenuHelper {
     }
 
     private void logout() {
+
+        usersRef.child(userId).child("remember").setValue(0);
         Intent i = new Intent(activity, LoginActivity.class);
-        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         activity.startActivity(i);
         activity.finish();
     }

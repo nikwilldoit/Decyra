@@ -56,7 +56,7 @@ public class  QuestionnaireActivity extends AppCompatActivity {
     private DatabaseReference itFieldsRef;
     private DatabaseReference careerRef;
 
-
+    private String userLanguages = "";
     private String userId, userFullName, userEmail, userPhone, modeType;
 
     private EditText edtAnswer;
@@ -215,6 +215,29 @@ public class  QuestionnaireActivity extends AppCompatActivity {
         });
 
         btnVoice.setOnClickListener(v -> startSpeechRecognizer());
+
+        usersInfoRef.child(userId)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                        String lang = snapshot.child("languages").getValue(String.class);
+
+                        if (lang != null && !lang.isEmpty()) {
+                            userLanguages = lang;
+                        } else {
+                            userLanguages = "Unknown";
+                        }
+
+                        Log.d("USER_INFO", "Languages: " + userLanguages);
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        Log.e("USER_INFO", "Failed to load languages", error.toException());
+                        userLanguages = "Unknown";
+                    }
+                });
     }
 
     private void loadItFields() {
@@ -628,7 +651,8 @@ public class  QuestionnaireActivity extends AppCompatActivity {
 
             for (int i = 0; i < questions.size(); i++) {
                 if (!answers.get(i).isEmpty()) {
-                    String f = formatAnswer(modeType, i, answers.get(i));
+                    long qId = questions.get(i).questionId;
+                    String f = formatAnswer(modeType, (int)qId, answers.get(i));
                     if (!f.isEmpty()) {
                         profile.append("- ").append(f).append("\n");
                     }
@@ -742,60 +766,54 @@ public class  QuestionnaireActivity extends AppCompatActivity {
                 || ("master".equals(modeType) && questionId == 6);
     }
 
-    private String formatAnswer(String mode, int index, String answer) {
+    private String formatAnswer(String mode, int questionId, String answer) {
 
         if ("erasmus".equals(mode)) {
-            switch (index) {
-                case 0:
-                    return "Erasmus – Προτιμώμενη Περιοχή: " + answer;
+            switch (questionId) {
                 case 1:
-                    return "Erasmus – Γλώσσα Σπουδών: " + answer;
+                    return "Erasmus – Προτιμώμενη Περιοχή: " + answer;
                 case 2:
-                    return "Erasmus – Σημασία Οικονομικής Ενίσχυσης: " + answer;
+                    return "Erasmus – Γλώσσα Σπουδών: " + userLanguages;
                 case 3:
-                    return "Erasmus – Τύπος Πανεπιστημίου: " + answer;
+                    return "Erasmus – Σημασία Οικονομικής Ενίσχυσης: " + answer;
                 case 4:
-                    return "Erasmus – Προτιμώμενος Τύπος Πόλης: " + answer;
+                    return "Erasmus – Τύπος Πανεπιστημίου: " + answer;
                 case 5:
-                    return "Erasmus – Σημασία Φοιτητικής Ζωής: " + answer;
+                    return "Erasmus – Προτιμώμενος Τύπος Πόλης: " + answer;
                 case 6:
+                    return "Erasmus – Σημασία Φοιτητικής Ζωής: " + answer;
+                case 7:
                     return "Erasmus – Κύριος Στόχος από την Εμπειρία: " + answer;
-                default:
-                    return "";
             }
         } else if ("master".equals(mode)) {
-            switch (index) {
-                case 0:
-                    return "Master – Προτιμώμενη Περιοχή: " + answer;
+            switch (questionId) {
                 case 1:
-                    return "Master – Προτίμηση Γλώσσας Διδασκαλίας: " + answer;
+                    return "Master – Προτιμώμενη Περιοχή: " + answer;
                 case 2:
-                    return "Master – Ευαισθησία στο Κόστος: " + answer;
+                    return "Master – Προτίμηση Γλώσσας Διδασκαλίας: " + userLanguages;
                 case 3:
-                    return "Master – Σημασία Κατάταξης / Φήμης Πανεπιστημίου: " + answer;
+                    return "Master – Ευαισθησία στο Κόστος: " + answer;
                 case 4:
-                    return "Master – Προτιμώμενος Τύπος Προγράμματος: " + answer;
+                    return "Master – Σημασία Κατάταξης / Φήμης Πανεπιστημίου: " + answer;
                 case 5:
-                    return "Master – Σύνδεση με την Αγορά Εργασίας: " + answer;
+                    return "Master – Προτιμώμενος Τύπος Προγράμματος: " + answer;
                 case 6:
+                    return "Master – Σύνδεση με την Αγορά Εργασίας: " + answer;
+                case 7:
                     return "Master – Κύριος Στόχος από το Master: " + answer;
-                default:
-                    return "";
             }
         } else if ("career".equals(mode)) {
-            switch (index) {
-                case 0:
-                    return "Καριέρα – Προτιμώμενος Τομέας IT: " + answer;
+            switch (questionId) {
                 case 1:
-                    return "Καριέρα – Σημασία Μισθού: " + answer;
+                    return "Καριέρα – Προτιμώμενος Τομέας IT: " + answer;
                 case 2:
-                    return "Καριέρα – Ενδιαφέρον για Master: " + answer;
+                    return "Καριέρα – Σημασία Μισθού: " + answer;
                 case 3:
-                    return "Καριέρα – Προτιμώμενη Τοποθεσία Εργασίας: " + answer;
+                    return "Καριέρα – Ενδιαφέρον για Master: " + answer;
                 case 4:
+                    return "Καριέρα – Προτιμώμενη Τοποθεσία Εργασίας: " + answer;
+                case 5:
                     return "Καριέρα – Πιο Σημαντικός Παράγοντας στην Καριέρα: " + answer;
-                default:
-                    return "";
             }
         }
 

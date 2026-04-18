@@ -17,6 +17,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageCapture;
@@ -78,7 +79,6 @@ public class LoginActivity extends AppCompatActivity {
     private InternetConnection inter = new InternetConnection();
 
 
-
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,7 +86,7 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         requestNotificationPermissionIfNeeded();
 
-        if(!inter.isConnected(this)){
+        if (!inter.isConnected(this)) {
             inter.showCustomDialog(this);
         }
 
@@ -127,7 +127,7 @@ public class LoginActivity extends AppCompatActivity {
 
         loadFaceModel();
 
-        btnForgotPass.setOnClickListener(v->
+        btnForgotPass.setOnClickListener(v ->
                 startActivity(new Intent(this, ForgetActivity.class)));
 
 
@@ -135,7 +135,7 @@ public class LoginActivity extends AppCompatActivity {
                 startActivity(new Intent(this, RegisterActivity.class)));
 
         btnLoginLog.setOnClickListener(v -> {
-            if(!inter.isConnected(this)){
+            if (!inter.isConnected(this)) {
                 inter.showCustomDialog(this);
             }
 
@@ -148,6 +148,7 @@ public class LoginActivity extends AppCompatActivity {
             }
 
             loginWithFirebase(email, password);
+
 
             //POTE UNCOMMENT. MONO OTAN EINAI EDIT TO PINECONE
 //            PineconeIndexerMaster_Career indexer = new PineconeIndexerMaster_Career(this);
@@ -169,7 +170,6 @@ public class LoginActivity extends AppCompatActivity {
 
         btnFaceLogin.setOnClickListener(v -> checkCameraPermission());
         captureButton.setOnClickListener(v -> takePhoto());
-
 
 
     }
@@ -199,7 +199,6 @@ public class LoginActivity extends AppCompatActivity {
     }
 
 
-
     private void loadFaceModel() {
         try {
             InputStream is = getAssets().open("facenet.tflite");
@@ -215,7 +214,7 @@ public class LoginActivity extends AppCompatActivity {
             tflite = new Interpreter(buffer);
 
         } catch (Exception e) {
-            Toast.makeText(this,"Model load failed",Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Model load failed", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -262,7 +261,7 @@ public class LoginActivity extends AppCompatActivity {
                                                         .setValue(token);
                                             });
 
-                                    if(email.equals("admin@admin.com") && password.equals("admin1")){
+                                    if (email.equals("admin@admin.com") && password.equals("admin1")) {
                                         openNextActivity();
                                         return;
                                     }
@@ -272,6 +271,8 @@ public class LoginActivity extends AppCompatActivity {
                                             Toast.LENGTH_LONG).show();
 
                                     btnFaceLogin.setEnabled(true);
+
+
                                 }
 
                                 @Override
@@ -370,7 +371,7 @@ public class LoginActivity extends AppCompatActivity {
                             Bitmap bitmap = BitmapFactory.decodeStream(stream);
                             stream.close();
 
-                            Bitmap resized = Bitmap.createScaledBitmap(bitmap,160,160,true);
+                            Bitmap resized = Bitmap.createScaledBitmap(bitmap, 160, 160, true);
 
                             float[] embedding = normalize(runModel(resized));
 
@@ -437,7 +438,8 @@ public class LoginActivity extends AppCompatActivity {
                     }
 
                     @Override
-                    public void onCancelled(DatabaseError error) { }
+                    public void onCancelled(DatabaseError error) {
+                    }
                 });
     }
 
@@ -449,27 +451,48 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onDataChange(DataSnapshot snap) {
 
-                        Intent i;
+                        showRememberDialog(authenticatedUserId, () -> {
 
-                        if (snap.exists())
-                            i = new Intent(LoginActivity.this, ModeSelectionActivity.class);
-                        else
-                            i = new Intent(LoginActivity.this, UserInfoActivity.class);
+                            Intent i;
 
-                        i.putExtra("userId", authenticatedUserId);
-                        i.putExtra("userFullName", authenticatedUser.getFullName());
-                        i.putExtra("userEmail", authenticatedUser.getEmail());
-                        i.putExtra("userPhone", authenticatedUser.getPhoneNumber());
+                            if (snap.exists())
+                                i = new Intent(LoginActivity.this, ModeSelectionActivity.class);
+                            else
+                                i = new Intent(LoginActivity.this, UserInfoActivity.class);
 
-                        startActivity(i);
-                        finish();
+                            i.putExtra("userId", authenticatedUserId);
+                            i.putExtra("userFullName", authenticatedUser.getFullName());
+                            i.putExtra("userEmail", authenticatedUser.getEmail());
+                            i.putExtra("userPhone", authenticatedUser.getPhoneNumber());
+
+                            startActivity(i);
+                            finish();
+                        });
                     }
 
                     @Override
-                    public void onCancelled(DatabaseError error) { }
+                    public void onCancelled(DatabaseError error) {}
                 });
     }
 
+    private void showRememberDialog(String userid, Runnable onDone) {
+
+        new AlertDialog.Builder(this)
+                .setTitle("Remember login?")
+                .setMessage("Do you want to stay logged in on this device?")
+                .setPositiveButton("Yes", (dialog, which) -> {
+
+                    usersRef.child(userid).child("remember").setValue(1);
+                    onDone.run();
+                })
+                .setNegativeButton("No", (dialog, which) -> {
+
+                    usersRef.child(userid).child("remember").setValue(0);
+                    onDone.run();
+                })
+                .setCancelable(false)
+                .show();
+    }
     private float[] runModel(Bitmap bitmap) {
 
         ByteBuffer buffer = ByteBuffer.allocateDirect(1*160*160*3*4);

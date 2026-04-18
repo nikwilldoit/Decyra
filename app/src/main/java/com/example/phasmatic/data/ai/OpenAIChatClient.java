@@ -367,11 +367,32 @@ public class OpenAIChatClient {
                                             "University - Program - Country\n" +
                                             "Fit Score: X/10\n" +
                                             "Why: 1 short sentence\n\n" +
+                                            "MODE OVERRIDE:\n" +
+
+                                            "If mode = CAREER:\n" +
+                                            "- IGNORE the default format above\n" +
+                                            "- Use the CAREER FORMAT below\n\n" +
+
+                                            "CAREER FORMAT (STRICT):\n" +
+                                            "FINAL DECISION: Work / Master\n" +
+                                            "Reason: 1 sentence (based on salary + goals + field)\n\n" +
+
+                                            "TOP OPTIONS:\n" +
+                                            "- Career Path - Country\n" +
+                                            "  Score: X/10\n" +
+                                            "  Why: 1 short sentence\n\n"+
+
 
                                             "STYLE:\n" +
                                             "- ultra concise\n" +
                                             "- deterministic\n" +
-                                            "- no meta references"
+                                            "- no meta references"+
+
+                                            " CAREER SPECIAL RULE:\n" +
+                                            "Unlike other modes, you MUST synthesize insights across multiple data points\n"+
+                                            "Do NOT just match attributes\n"+
+                                            "You MUST produce a decision (work vs master) based on data patterns"
+
                             )
                     );
 

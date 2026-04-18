@@ -752,11 +752,7 @@ public class  QuestionnaireActivity extends AppCompatActivity {
             sb.append("MODE: CAREER\n");
 
             sb.append("PRIORITY:\n");
-            sb.append("1. Field fit\n");
-            sb.append("2. Career goals alignment\n");
-            sb.append("3. Salary impact (with vs without Master)\n");
-            sb.append("4. Work-life preference\n");
-            sb.append("5. Location\n\n");
+            sb.append("Priority: Field > Career > Location > Language > Salary impact > Work-life preference\n\n");
 
             sb.append("DECISION RULE:\n");
             sb.append("- Evaluate BOTH paths: work directly vs Master\n");
@@ -770,10 +766,14 @@ public class  QuestionnaireActivity extends AppCompatActivity {
             sb.append("- Prefer high-impact conclusions over listing data\n\n");
 
             sb.append("OUTPUT:\n");
-            sb.append("Career Path - Country\n");
-            sb.append("Score: X/10\n");
-            sb.append("Decision: Work / Master\n");
-            sb.append("1-line reason (must combine salary + goals + field)\n");
+
+            sb.append("- Career Path - Country\n");
+            sb.append("  Score: X/10\n");
+            sb.append("  Decision: Work / Master\n");
+            sb.append("  Why:\n");
+            sb.append("  • 2-3 bullets με βασικούς λόγους (salary + field + goals)\n");
+            sb.append("  Advice:\n");
+            sb.append("  • 1 σύντομη πρακτική συμβουλή σαν mentor\n\n");
         }
 
         return sb.toString().trim();

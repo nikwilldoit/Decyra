@@ -1,5 +1,7 @@
 package com.example.phasmatic.ui;
 
+import static com.example.phasmatic.extras.ProgramType.career;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
@@ -27,6 +29,7 @@ import com.example.phasmatic.data.ai.OpenAIChatClient;
 import com.example.phasmatic.extras.HTMLFileExporter;
 import com.example.phasmatic.extras.InternetConnection;
 import com.example.phasmatic.extras.ProfileImageManager;
+import com.example.phasmatic.extras.ProgramType;
 import com.example.phasmatic.ui.Profile_Menu.ProfileMenuHelper;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;

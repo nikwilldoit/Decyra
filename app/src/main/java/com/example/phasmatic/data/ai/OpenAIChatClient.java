@@ -1,13 +1,12 @@
 package com.example.phasmatic.data.ai;
 
 import android.content.Context;
-import android.os.Handler;
-import android.os.Looper;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 
 import com.example.phasmatic.data.model.MessageLLM;
+import com.example.phasmatic.extras.ProgramType;
+import com.example.phasmatic.extras.LLMRules;
 import com.google.firebase.database.*;
 
 import org.json.JSONArray;
@@ -217,57 +216,68 @@ public class OpenAIChatClient {
 
                         String apiKey = snapshot.getValue(String.class);
 
-                        if (embedding == null) {
-                            buildPrompt(apiKey, conversationId, userMessage, "", callback, userFullName);
-                            return;
-                        }
-
                         String[] namespaces;
                         String[] indexes;
-
+                        ProgramType programType;
                         if (num == 0) {
+                            programType = ProgramType.erasmus;
                             namespaces = new String[]{"erasmus-AUEB"};
                             indexes = new String[]{"Education"};
                         } else if (num == 1) {
+                            programType = ProgramType.master;
                             namespaces = new String[]{"europe-master"};
                             indexes = new String[]{"master"};
                         } else if(num == 2){
+                            programType = ProgramType.career;
                             namespaces = new String[]{"main-career"};
                             indexes = new String[]{"career"};
                         }else if(num==4){
+                            programType = ProgramType.erasmus;
                             namespaces = new String[]{"erasmus-THESSALY"};
                             indexes = new String[]{"Education"};
                         }else if(num==5){
+                            programType = ProgramType.erasmus;
                             namespaces = new String[]{"erasmus-ARISTOTLE"};
                             indexes = new String[]{"Education"};
                         }
                         else if(num==6){
+                            programType = ProgramType.erasmus;
                             namespaces = new String[]{"erasmus-EKPA"};
                             indexes = new String[]{"Education"};
                         }
                         else if(num==7){
+                            programType = ProgramType.erasmus;
                             namespaces = new String[]{"erasmus-CRETE"};
                             indexes = new String[]{"Education"};
                         }
                         else if(num==8){
+                            programType = ProgramType.erasmus;
                             namespaces = new String[]{"erasmus-PAPEI"};
                             indexes = new String[]{"Education"};
                         }
                         else if(num==9){
+                            programType = ProgramType.erasmus;
                             namespaces = new String[]{"erasmus-PELLOPONESE"};
                             indexes = new String[]{"Education"};
                         }
                         else if(num==10){
+                            programType = ProgramType.erasmus;
                             namespaces = new String[]{"erasmus-HAROKOPIO"};
                             indexes = new String[]{"Education"};
                         }
                         else{
+                            programType = ProgramType.erasmus;
                             namespaces = new String[]{"erasmus-IONIAN"};
                             indexes = new String[]{"Education"};
                         }
 
+                        if (embedding == null) {
+                            buildPrompt(apiKey, conversationId, userMessage, "", callback, userFullName, programType);
+                            return;
+                        }
+
                         queryNext(0, namespaces, indexes, embedding, new StringBuilder(),
-                                apiKey, conversationId, userMessage, callback);
+                                apiKey, conversationId, userMessage, callback, programType);
                     }
 
                     @Override
@@ -285,11 +295,12 @@ public class OpenAIChatClient {
             String apiKey,
             String conversationId,
             String userMessage,
-            ChatCallback callback
+            ChatCallback callback,
+            ProgramType programType
     ) {
 
         if (index == namespaces.length) {
-            buildPrompt(apiKey, conversationId, userMessage, context.toString(), callback, userMessage);
+            buildPrompt(apiKey, conversationId, userMessage, context.toString(), callback, userMessage, programType);
             return;
         }
 
@@ -303,13 +314,13 @@ public class OpenAIChatClient {
                     public void onSuccess(String ctx) {
                         context.append(ctx).append("\n");
                         queryNext(index + 1, namespaces, indexes, embedding,
-                                context, apiKey, conversationId, userMessage, callback);
+                                context, apiKey, conversationId, userMessage, callback, programType);
                     }
 
                     @Override
                     public void onError(String error) {
                         queryNext(index + 1, namespaces, indexes, embedding,
-                                context, apiKey, conversationId, userMessage, callback);
+                                context, apiKey, conversationId, userMessage, callback, programType);
                     }
                 }
         );
@@ -320,7 +331,8 @@ public class OpenAIChatClient {
             String userMessage,
             String ragContext,
             ChatCallback callback,
-            String userFullName
+            String userFullName,
+            ProgramType programType
     ) {
 
         getLastMessages(conversationId, 2, new MessagesCallback() {
@@ -332,68 +344,13 @@ public class OpenAIChatClient {
 
                     JSONArray messages = new JSONArray();
 
+                    String systemPrompt;
+
+                    systemPrompt = LLMRules.buildBasePrompt(programType);
+
                     messages.put(new JSONObject()
                             .put("role", "system")
-                            .put("content",
-                                    "ROLE: Academic recommender system (fit-score ranking engine).\n\n" +
-
-                                            "GOAL:\n" +
-                                            "Rank and explain TOP matches using ONLY Fit Score reasoning.\n\n" +
-
-                                            "CRITICAL RULES:\n" +
-                                            "- Ignore retrieval order completely.\n" +
-                                            "- Treat all candidates as unordered.\n" +
-                                            "- NEVER mention Pinecone, retrieval, indexes, or option numbers.\n" +
-                                            "- Use ONLY provided attributes.\n\n" +
-
-                                            "SCORING MODEL (MANDATORY):\n" +
-                                            "- Compute Fit Score (0–10)\n" +
-                                            "- Factors: language, location, cost, field, goals\n" +
-                                            "- High-priority mismatch = strong penalty\n\n" +
-
-                                            "TIMEOUT SAFETY RULE (IMPORTANT):\n" +
-                                            "- Keep reasoning MINIMAL and high-signal only\n" +
-                                            "- Do NOT generate long explanations\n" +
-                                            "- Maximum 1 sentence per item\n" +
-                                            "- Maximum 5 results only\n" +
-                                            "- If too many candidates exist, silently prune to best 5\n\n" +
-
-                                            "OUTPUT RULE:\n" +
-                                            "- Return TOP 5 only\n" +
-                                            "- Sorted by Fit Score (desc)\n" +
-                                            "- No extra commentary outside list\n\n" +
-
-                                            "FORMAT:\n" +
-                                            "University - Program - Country\n" +
-                                            "Fit Score: X/10\n" +
-                                            "Why: 1 short sentence\n\n" +
-                                            "MODE OVERRIDE:\n" +
-
-                                            "If mode = CAREER:\n" +
-                                            "- IGNORE the default format above\n" +
-                                            "- Use the CAREER FORMAT below\n\n" +
-
-                                            "CAREER FORMAT (STRICT):\n" +
-                                            "FINAL DECISION: Work / Master\n" +
-                                            "Reason: 1 sentence (based on salary + goals + field)\n\n" +
-
-                                            "TOP OPTIONS:\n" +
-                                            "- Career Path - Country\n" +
-                                            "  Score: X/10\n" +
-                                            "  Why: 1 short sentence\n\n"+
-
-
-                                            "STYLE:\n" +
-                                            "- ultra concise\n" +
-                                            "- deterministic\n" +
-                                            "- no meta references"+
-
-                                            " CAREER SPECIAL RULE:\n" +
-                                            "Unlike other modes, you MUST synthesize insights across multiple data points\n"+
-                                            "Do NOT just match attributes\n"+
-                                            "You MUST produce a decision (work vs master) based on data patterns"
-
-                            )
+                            .put("content", systemPrompt)
                     );
 
                     messages.put(new JSONObject()
@@ -410,11 +367,13 @@ public class OpenAIChatClient {
                             .put("role", "user")
                             .put("content", userMessage));
 
-                    callOpenAI(apiKey, messages, conversationId, callback,userFullName);
+                    callOpenAI(apiKey, messages, conversationId, callback, userFullName);
+
                 } catch (Exception e) {
                     callback.onError(e.getMessage());
                 }
             }
+
             @Override
             public void onError(String error) {
                 callback.onError(error);

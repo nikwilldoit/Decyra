@@ -24,6 +24,7 @@ import com.example.phasmatic.R;
 import com.example.phasmatic.data.ai.OpenAIChatClient;
 import com.example.phasmatic.extras.HTMLFileExporter;
 import com.example.phasmatic.extras.InternetConnection;
+import com.example.phasmatic.extras.ProgramType;
 import com.example.phasmatic.ui.Profile_Menu.ProfileMenuHelper;
 import android.graphics.Bitmap;
 import com.example.phasmatic.extras.ProfileImageManager;

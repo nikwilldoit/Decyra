@@ -12,7 +12,7 @@ import com.example.phasmatic.extras.ProfileImageManager
 import com.example.phasmatic.ui.Chat.users_to_chat.UsersActivity
 import com.example.phasmatic.ui.Forum.forum.ForumActivity
 import com.example.phasmatic.ui.Profile_Menu.account_settings.AccountActivity
-import com.example.phasmatic.ui.QuestionnaireActivity
+import com.example.phasmatic.ui.questionnaire.QuestionnaireActivity
 import com.example.phasmatic.ui.conference.general_conference.GeneralConferenceActivity
 import com.example.phasmatic.ui.login.LoginActivity
 import com.example.phasmatic.ui.notes.Notes.NotesActivity

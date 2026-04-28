@@ -124,6 +124,7 @@ class RegisterComposeActivity : ComponentActivity() {
                     androidx.compose.ui.viewinterop.AndroidView(factory = { context ->
                         PreviewView(context).also { preview ->
                             viewFinder = preview
+
                         }
                     })
                 },

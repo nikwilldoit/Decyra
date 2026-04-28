@@ -54,7 +54,8 @@
         <activity android:name=".ui.master.MasterChatActivity" />
         <activity android:name=".ui.master.MasterChatComposeActivity" />
 
-        <activity android:name=".ui.QuestionnaireActivity" />
+        <activity android:name=".ui.questionnaire.QuestionnaireActivity" />
+        <activity android:name=".ui.questionnaire.QuestionnaireComposeActivity"/>
 
         <activity android:name=".ui.Profile_Menu.account_settings.AccountActivity" />
         <activity android:name=".ui.Profile_Menu.account_settings.AccountComposeActivity" />

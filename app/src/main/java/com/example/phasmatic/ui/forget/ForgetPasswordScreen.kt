@@ -13,6 +13,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Layers
 import androidx.compose.material.icons.filled.LockReset
 import androidx.compose.material.icons.filled.MarkEmailRead
 import androidx.compose.material3.*
@@ -25,6 +26,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.*
+import com.example.phasmatic.ui.modeSelection.OrchidPrimary
 import kotlin.math.sin
 
 val InkBlack = Color(0xFF000000)
@@ -141,7 +143,7 @@ fun ForgetHeroCard() {
             modifier = Modifier.fillMaxSize(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            NeuralPrismAuraForget()
+            NeuralPrismAura()
             Spacer(Modifier.width(22.dp))
             Column {
                 Text(
@@ -329,42 +331,20 @@ fun AnimatedMeshBackground() {
 }
 
 @Composable
-fun NeuralPrismAuraForget() {
+fun NeuralPrismAura() {
     val infiniteTransition = rememberInfiniteTransition(label = "prism")
     val rotation by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 360f,
-        animationSpec = infiniteRepeatable(
-            tween(15000, easing = LinearEasing)
-        ),
-        label = "rot"
+        initialValue = 0f, targetValue = 360f,
+        animationSpec = infiniteRepeatable(tween(15000, easing = LinearEasing)), label = "rot"
     )
-
     Box(
-        modifier = Modifier
-            .size(84.dp)
-            .rotate(rotation)
+        modifier = Modifier.size(85.dp).rotate(rotation)
             .drawBehind {
-                drawCircle(
-                    brush = Brush.sweepGradient(
-                        listOf(OrchidPrimary, Color.Transparent, OrchidPrimary)
-                    ),
-                    style = Stroke(width = 6f)
-                )
-                drawCircle(
-                    brush = Brush.radialGradient(
-                        listOf(OrchidPrimary.copy(alpha = 0.3f), Color.Transparent)
-                    ),
-                    radius = size.width / 1.5f
-                )
+                drawCircle(brush = Brush.sweepGradient(listOf(OrchidPrimary, Color.Transparent, OrchidPrimary)), style = Stroke(width = 6f, cap = StrokeCap.Round))
+                drawCircle(brush = Brush.radialGradient(listOf(OrchidPrimary.copy(0.3f), Color.Transparent)), radius = size.width / 1.5f)
             },
         contentAlignment = Alignment.Center
     ) {
-        Icon(
-            Icons.Default.LockReset,
-            contentDescription = null,
-            tint = OrchidPrimary,
-            modifier = Modifier.size(30.dp)
-        )
+        Icon(Icons.Default.Layers, null, tint = OrchidPrimary, modifier = Modifier.size(30.dp))
     }
 }

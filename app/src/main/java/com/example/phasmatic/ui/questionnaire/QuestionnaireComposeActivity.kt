@@ -39,6 +39,9 @@ class QuestionnaireComposeActivity : AppCompatActivity() {
 
     // State Variables
     private var userId by mutableStateOf<String?>(null)
+    private var userFullName by mutableStateOf<String?>(null)
+    private var userEmail by mutableStateOf<String?>(null)
+    private var userPhone by mutableStateOf<String?>(null)
     private var modeType by mutableStateOf("")
     private var currentIndex by mutableStateOf(0)
     private val questionsList = mutableStateListOf<QuestionItem>()
@@ -64,7 +67,9 @@ class QuestionnaireComposeActivity : AppCompatActivity() {
 
         userId = intent.getStringExtra("userId")
         modeType = intent.getStringExtra("modeType") ?: "career"
-
+        userFullName = intent.getStringExtra("userFullName")
+        userEmail = intent.getStringExtra("userEmail")
+        userPhone = intent.getStringExtra("userPhone")
         db = FirebaseDatabase.getInstance("https://mega-5a5b4-default-rtdb.europe-west1.firebasedatabase.app")
         questionsRef = db.getReference("questionnaire_questions")
         answersRef = db.getReference("questionnaire_answers")
@@ -191,7 +196,6 @@ class QuestionnaireComposeActivity : AppCompatActivity() {
     private fun updateCareerSecondQuestion() {
         val fId = selectedFieldId ?: return
         val template = careerQuestion2Template ?: return
-        // ΔΙΟΡΘΩΣΗ: Χρήση .toDouble() αντί για .toLong() για να είναι συμβατό με την equalTo
         careerRef.orderByChild("field_id").equalTo(fId.toDouble()).addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(s: DataSnapshot) {
                 var salary: Long? = null
@@ -236,14 +240,35 @@ class QuestionnaireComposeActivity : AppCompatActivity() {
         val exp = UserExpectation(id, userId, modeType, resultText)
         expectationsRef.child(id).setValue(exp).addOnSuccessListener {
             val intent = when (modeType) {
-                "erasmus" -> Intent(this, ErasmusChatComposeActivity::class.java)
-                "master" -> Intent(this, MasterChatComposeActivity::class.java)
-                else -> Intent(this, CareerChatComposeActivity::class.java)
+                "erasmus" -> Intent(this, ErasmusChatComposeActivity::class.java).apply{
+                    putUserExtras(userId, userFullName, userEmail, userPhone)
+                }
+                "master" -> Intent(this, MasterChatComposeActivity::class.java).apply{
+                    putUserExtras(userId, userFullName, userEmail, userPhone)
+                }
+                else -> Intent(this, CareerChatComposeActivity::class.java).apply{
+                    putUserExtras(userId, userFullName, userEmail, userPhone)
+                }
             }
             intent.putExtra("userExpectations", resultText)
             startActivity(intent); finish()
         }
     }
+
+    private fun Intent.putUserExtras(
+        userId: String?,
+        userFullName: String?,
+        userEmail: String?,
+        userPhone: String?
+    ): Intent{
+        putExtra("userId", userId)
+        putExtra("userFullName", userFullName)
+        putExtra("userEmail", userEmail)
+        putExtra("userPhone", userPhone)
+        return this
+    }
+
+
 
     private fun startVoiceInput() {
         val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {

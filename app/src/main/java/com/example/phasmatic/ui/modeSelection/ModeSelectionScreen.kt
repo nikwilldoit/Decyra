@@ -58,7 +58,7 @@ fun ModeSelectionScreen(
     onLogoutClick: () -> Unit
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
-    // Καλούμε το Haptic Feedback
+
     val haptic = LocalHapticFeedback.current
 
     Scaffold(
@@ -89,10 +89,10 @@ fun ModeSelectionScreen(
                             text = "DECYRA",
                             style = MaterialTheme.typography.headlineMedium.copy(
                                 fontWeight = FontWeight.Black,
-                                fontSize = 28.sp, // Μεγαλύτερο για να γεμίσει το κενό
-                                letterSpacing = 8.sp, // Wide spacing για premium look
+                                fontSize = 28.sp,
+                                letterSpacing = 8.sp,
                                 brush = Brush.linearGradient(
-                                    colors = listOf(InkDeep, OrchidPrimary) // Gradient που ενώνει Indigo και Pink
+                                    colors = listOf(InkDeep, OrchidPrimary)
                                 )
                             ),
                             modifier = Modifier.padding(top = 8.dp)

@@ -162,6 +162,7 @@ fun UnifiedChatScreen(
                     expanded = menuExpanded,
                     onDismiss = { menuExpanded = false },
                     onAccountClick = onProfileClick,
+
                     onChatClick = onChatClick,
                     onConferenceClick = onConferenceClick,
                     onNotesClick = onNotesClick,

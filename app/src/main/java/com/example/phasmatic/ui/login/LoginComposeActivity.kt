@@ -18,9 +18,11 @@ import androidx.activity.compose.setContent
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -101,11 +103,17 @@ class LoginComposeActivity : ComponentActivity() {
                     checkCameraPermission()
                 },
                 cameraPreview = {
-                    AndroidView(factory = { context ->
-                        PreviewView(context).also { preview ->
-                            viewFinder = preview
-                        }
-                    })
+                    androidx.compose.ui.viewinterop.AndroidView(
+                        factory = { context ->
+                            PreviewView(context).apply {
+                                scaleType = PreviewView.ScaleType.FILL_CENTER
+                                implementationMode = PreviewView.ImplementationMode.COMPATIBLE
+
+                                viewFinder = this
+                            }
+                        },
+                        modifier = Modifier.fillMaxSize()
+                    )
                 },
                 onCaptureClick = {
                     takePhoto()

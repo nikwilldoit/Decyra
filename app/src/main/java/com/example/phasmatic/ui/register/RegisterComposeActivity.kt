@@ -16,7 +16,9 @@ import androidx.activity.compose.setContent
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.phasmatic.data.model.User
@@ -120,14 +122,21 @@ class RegisterComposeActivity : ComponentActivity() {
                     showCameraPreview = true
                     checkCameraPermission()
                 },
-                cameraPreview = {
-                    androidx.compose.ui.viewinterop.AndroidView(factory = { context ->
-                        PreviewView(context).also { preview ->
-                            viewFinder = preview
 
-                        }
-                    })
+                cameraPreview = {
+                    androidx.compose.ui.viewinterop.AndroidView(
+                        factory = { context ->
+                            PreviewView(context).apply {
+                                scaleType = PreviewView.ScaleType.FILL_CENTER
+                                implementationMode = PreviewView.ImplementationMode.COMPATIBLE
+
+                                viewFinder = this
+                            }
+                        },
+                        modifier = Modifier.fillMaxSize()
+                    )
                 },
+
                 onBackFromCamera = {
                     showCameraPreview = false
                     currentAction = FaceAction.CENTER
@@ -363,8 +372,8 @@ class RegisterComposeActivity : ComponentActivity() {
             }
             FaceAction.LOOK_LEFT -> yaw > 20
             FaceAction.LOOK_RIGHT -> yaw < -20
-            FaceAction.LOOK_UP -> pitch < -15
-            FaceAction.LOOK_DOWN -> pitch > 15
+            FaceAction.LOOK_DOWN -> pitch < -15
+            FaceAction.LOOK_UP -> pitch > 15
             FaceAction.BLINK -> {
                 face.leftEyeOpenProbability?.let { it < 0.3 } == true
             }
@@ -395,14 +404,14 @@ class RegisterComposeActivity : ComponentActivity() {
             FaceAction.LOOK_RIGHT -> {
                 speak("After 5 seconds turn your head down")
                 scheduleCountdown(handler)
-                FaceAction.LOOK_UP
-            }
-            FaceAction.LOOK_UP -> {
-                speak("After 5 seconds turn your head up")
-                scheduleCountdown(handler)
                 FaceAction.LOOK_DOWN
             }
             FaceAction.LOOK_DOWN -> {
+                speak("After 5 seconds turn your head up")
+                scheduleCountdown(handler)
+                FaceAction.LOOK_UP
+            }
+            FaceAction.LOOK_UP -> {
                 speak("After 5 seconds blink your eyes")
                 scheduleCountdown(handler)
                 FaceAction.BLINK

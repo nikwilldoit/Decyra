@@ -1,6 +1,7 @@
 package com.example.phasmatic.ui.register
 
 import android.Manifest
+import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.AssetFileDescriptor
@@ -204,13 +205,15 @@ class RegisterComposeActivity : ComponentActivity() {
                             usersFaceEmbeddingRef.child(faceEmbeddingId).setValue(userFaceEmbedding)
                                 .addOnSuccessListener {
                                     isLoading = false
-                                    Toast.makeText(
-                                        this,
-                                        "Registration successful",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                    startActivity(Intent(this, LoginActivity::class.java))
-                                    finish()
+                                    showPublicDataConsentDialog(uid) {
+                                        Toast.makeText(
+                                            this,
+                                            "Registration successful",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                        startActivity(Intent(this, LoginActivity::class.java))
+                                        finish()
+                                    }
                                 }
                         }
                         .addOnFailureListener { e ->
@@ -477,6 +480,29 @@ class RegisterComposeActivity : ComponentActivity() {
         val norm = Math.sqrt(sum.toDouble()).toFloat()
         for (i in emb.indices) emb[i] /= norm
         return emb
+    }
+
+    private fun showPublicDataConsentDialog(
+        userId: String,
+        onDone: () -> Unit
+    ) {
+        AlertDialog.Builder(this)
+            .setTitle("Συναίνεση για φωτογραφία & στοιχεία")
+            .setMessage(
+                "Συμφωνείτε να χρησιμοποιείται η φωτογραφία σας και " +
+                        "τα βασικά στοιχεία προφίλ (όνομα, email) ώστε να " +
+                        "είναι ορατά σε άλλους χρήστες μέσα στην εφαρμογή;"
+            )
+            .setPositiveButton("Συμφωνώ") { _, _ ->
+                usersRef.child(userId).child("publicDataConsent").setValue(true)
+                onDone()
+            }
+            .setNegativeButton("Δεν συμφωνώ") { _, _ ->
+                usersRef.child(userId).child("publicDataConsent").setValue(false)
+                onDone()
+            }
+            .setCancelable(false)
+            .show()
     }
 
     private fun computeAverageEmbedding(embeddings: List<List<Double>>): List<Double> {

@@ -44,7 +44,7 @@ fun UserInfoScreen(
     field: String,
     budget: String,
     selectedYear: String,
-    advisorType: String?,
+    //advisorType: String?,
     isLoading: Boolean,
     isSaving: Boolean,
     infoMessage: String?,
@@ -89,7 +89,7 @@ fun UserInfoScreen(
                 field = field,
                 budget = budget,
                 selectedYear = selectedYear,
-                advisorType = advisorType,
+                //advisorType = advisorType,
                 isLoading = isLoading,
                 isSaving = isSaving,
                 infoMessage = infoMessage,
@@ -165,7 +165,7 @@ fun UserInfoHeroCard(name: String) {
                 )
                 Spacer(Modifier.height(8.dp))
                 Text(
-                    "Set up your academic profile and choose your ideal advisor.",
+                    "Set up your academic profile to get personalized guidance.",
                     color = Color.White.copy(alpha = 0.8f),
                     fontSize = 13.sp
                 )
@@ -184,7 +184,7 @@ fun UserInfoFormCard(
     field: String,
     budget: String,
     selectedYear: String,
-    advisorType: String?,
+    //advisorType: String?,
     isLoading: Boolean,
     isSaving: Boolean,
     infoMessage: String?,
@@ -277,44 +277,6 @@ fun UserInfoFormCard(
         )
 
         Spacer(Modifier.height(20.dp))
-
-        Text(
-            "Choose your advisor",
-            fontWeight = FontWeight.Bold,
-            color = InkDeep,
-            fontSize = 16.sp
-        )
-
-        Spacer(Modifier.height(12.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            AdvisorCard(
-                title = "Male",
-                icon = Icons.Default.Person,
-                selected = advisorType == "male",
-                onClick = { onAdvisorSelected("male") },
-                modifier = Modifier.weight(1f)
-            )
-            AdvisorCard(
-                title = "Female",
-                icon = Icons.Default.Face,
-                selected = advisorType == "female",
-                onClick = { onAdvisorSelected("female") },
-                modifier = Modifier.weight(1f)
-            )
-            AdvisorCard(
-                title = "Robot",
-                icon = Icons.Default.SmartToy,
-                selected = advisorType == "robot",
-                onClick = { onAdvisorSelected("robot") },
-                modifier = Modifier.weight(1f)
-            )
-        }
-
-        Spacer(Modifier.height(16.dp))
 
         AnimatedVisibility(visible = !infoMessage.isNullOrBlank()) {
             Text(

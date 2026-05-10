@@ -33,7 +33,7 @@ class UserInfoComposeActivity : AppCompatActivity() {
     var field by mutableStateOf("")
     var budget by mutableStateOf("")
     var selectedYear by mutableStateOf("1")
-    var advisorType by mutableStateOf<String?>(null)
+    var advisorType by mutableStateOf<String?>("male")
 
     var universities by mutableStateOf(listOf<String>())
     var isLoading by mutableStateOf(true)
@@ -81,7 +81,7 @@ class UserInfoComposeActivity : AppCompatActivity() {
                 field = field,
                 budget = budget,
                 selectedYear = selectedYear,
-                advisorType = advisorType,
+                //advisorType = advisorType,
                 isLoading = isLoading,
                 isSaving = isSaving,
                 infoMessage = infoMessage,
@@ -144,7 +144,8 @@ class UserInfoComposeActivity : AppCompatActivity() {
                     field = info.field ?: ""
                     budget = info.budgetPerYear?.toString() ?: ""
                     selectedYear = info.yearOfStudies?.toString() ?: "1"
-                    advisorType = info.advisorType
+
+                    advisorType = info.advisorType ?: "male"
                 }
 
                 override fun onCancelled(error: DatabaseError) {}
@@ -178,11 +179,7 @@ class UserInfoComposeActivity : AppCompatActivity() {
             return
         }
 
-        val advisor = advisorType
-        if (advisor == null) {
-            infoMessage = "Please choose an advisor"
-            return
-        }
+        val advisor = advisorType ?: "male"
 
         val advisorImage = when (advisor) {
             "male" -> "male.png"

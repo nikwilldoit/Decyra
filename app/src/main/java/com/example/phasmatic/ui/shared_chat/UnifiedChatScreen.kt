@@ -21,6 +21,27 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
+
+@Composable
+fun parseMarkdown(text: String): AnnotatedString {
+    return buildAnnotatedString {
+        val parts = text.split("**")
+        parts.forEachIndexed { index, part ->
+            if (index % 2 != 0) {
+                withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                    append(part)
+                }
+            } else {
+                append(part)
+            }
+        }
+    }
+}
 
 @Composable
 fun UnifiedChatScreen(
@@ -262,7 +283,7 @@ fun ChatBubble(
                             }
                         } else {
                             Text(
-                                text = message,
+                                text = parseMarkdown(message),
                                 color = textColor,
                                 fontSize = 15.sp,
                                 lineHeight = 22.sp

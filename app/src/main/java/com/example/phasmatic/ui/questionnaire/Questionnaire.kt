@@ -514,21 +514,7 @@ fun AnswerGrid(
         }
     }
 }
-@Composable
-fun parseMarkdown(text: String): AnnotatedString {
-    return buildAnnotatedString {
-        val parts = text.split("**")
-        parts.forEachIndexed { index, part ->
-            if (index % 2 != 0) {
-                withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                    append(part)
-                }
-            } else {
-                append(part)
-            }
-        }
-    }
-}
+
 @Composable
 fun AnswerOptionCard(
     text: String,

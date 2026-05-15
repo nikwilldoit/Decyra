@@ -267,7 +267,7 @@ class QuestionnaireComposeActivity : AppCompatActivity() {
             )
         }
         val formattedResult = StringBuilder()
-        formattedResult.append("Σύνοψη Προτιμήσεων\n")
+        formattedResult.append("**Σύνοψη Προτιμήσεων**\n\n")
         formattedResult.append("\n\n")
 
         userAnswers.forEachIndexed { index, answer ->

@@ -25,4 +25,6 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "decyra"
+
+
 include ':app'

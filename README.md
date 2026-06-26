@@ -63,12 +63,12 @@ The app does not focus only on generic recommendations. Instead, it aims to prov
 ### Additional Services
 - **Google Services** for email-based password reset and speech-to-text , text-to-speech support
 
-Read the full [documentation](app/src/main/java/com/example/decyra/frontend/README.md) for Cloud and Backend Infrastructure, Security, Video Conference and Additional Services.
-
   
 <p align="center">
   <img width="425" height="244" alt="image" src="https://github.com/user-attachments/assets/121c4413-1d27-41e0-a07b-438d103cf261" />
 </p>
+
+Read the full [documentation](app/src/main/java/com/example/decyra/frontend/README.md) for Cloud and Backend Infrastructure, Security, Video Conference and Additional Services.
 
 ## Project Structure
 

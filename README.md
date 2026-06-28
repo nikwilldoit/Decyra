@@ -1,6 +1,6 @@
 # DECYRA: AI-Powered Academic and Career Guidance App
 
-You can watch the Demo Video [here](https://www.youtube.com/watch?v=UF1DgyN0P_4).
+You can watch the Demo Video [here](https://www.youtube.com/watch?v=UF1DgyN0P_4). 
 Explore our ui [here](https://miro.com/app/board/uXjVHBeWLB0=/?share_link_id=507636727005).
 
 ## Overview

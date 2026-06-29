@@ -1,4 +1,5 @@
-<img width="35" height="38" alt="image-removebg-preview" src="https://github.com/user-attachments/assets/d28fef58-c3cc-46d5-803d-fde91b7f3f6d" />
+<img width="45" height="48" alt="image-removebg-preview" src="https://github.com/user-attachments/assets/d28fef58-c3cc-46d5-803d-fde91b7f3f6d" />    
+
 # DECYRA: AI-Powered Academic and Career Guidance App  
 
 You can watch the Demo Video [here](https://www.youtube.com/watch?v=UF1DgyN0P_4).   
@@ -87,7 +88,7 @@ The application also includes cloud functions for secure API access and push not
 
 ## Why This Stack?
 
-This technology stack enables scalability, real-time performance, and a modern mobile user experience. By combining native Android development with managed cloud services and cloud-based AI, DECYRA provides a lightweight platform designed for 24/7 availability, allowing users to access its services anytime without installing or maintaining additional software. In contrast, self-hosted solutions based on local LLMs (e.g., LLaMA) and self-managed Flask servers require dedicated hardware that must remain continuously powered, configured, and maintained to provide uninterrupted service. They also demand significantly more computational resources and storage on the host machine, and their performance depends on the capabilities of the local hardware. By using a **cloud-based architecture**, DECYRA delivers fast and consistent response times while eliminating the overhead of running resource-heavy models locally. Overall, this cloud-native architecture provides a scalable, centrally managed, and highly available platform with low operational overhead and reliable performance.
+This technology stack enables scalability, real-time performance, and a modern mobile user experience. By combining native Android development with managed cloud services and cloud-based AI, DECYRA provides a lightweight platform designed for 24/7 availability, allowing users to access its services anytime without installing or maintaining additional software. In contrast, self-hosted solutions based on local LLMs (e.g., LLaMA) and self-managed Flask servers require dedicated hardware that must remain continuously powered, configured, and maintained to provide uninterrupted service. They also demand significantly more computational resources and storage on the host machine, and their performance depends on the capabilities of the local hardware. By using a **cloud-based architecture**, **DECYRA** delivers fast and consistent response times while eliminating the overhead of running resource-heavy models locally. Overall, this cloud-native architecture provides a scalable, centrally managed, and highly available platform with low operational overhead and reliable performance.
 
 ## Codebase Summary
 
